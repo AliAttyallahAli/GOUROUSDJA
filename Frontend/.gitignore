@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Dependencies
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+build/
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# ⚠️ NE PAS ignorer :
+# .env.development  (peut être commité, pas de secret)
+# .env.production   (peut être commité, pas de secret — VITE_* sont publics de toute façon)
