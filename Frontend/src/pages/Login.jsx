@@ -5,7 +5,7 @@ import axios from 'axios'
 import { FaPhone, FaLock, FaKey, FaMoneyBillWave, FaEye, FaEyeSlash, FaGift, FaUserPlus, FaCheckCircle, FaTimes } from 'react-icons/fa'
 
 // ✅ AJOUT : API_URL dynamique
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_URL = import.meta.env.VITE_API_URL || 'https://alkherpay.onrender.com';
 
 function Login({ setUser }) {
     const [phone, setPhone] = useState('')
