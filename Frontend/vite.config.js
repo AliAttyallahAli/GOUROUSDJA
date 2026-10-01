@@ -24,8 +24,16 @@ export default defineConfig({
         port: 5173,
         host: true,
         proxy: {
-            '/api': 'https://alkherpay.onrender.com',  // ✅ Corrigé (http:// + pas de ||) 
-            '/socket.io': 'https://alkherpay.onrender.com',
+            '/api': {
+                target: 'http://localhost:5000',  // ✅ Corrigé (http:// + pas de ||)
+                changeOrigin: true,
+                secure: false,
+            },
+            '/socket.io': {
+                target: 'http://localhost:5000',
+                changeOrigin: true,
+                ws: true,
+            },
         },
     },
     build: {
