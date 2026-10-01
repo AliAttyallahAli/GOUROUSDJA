@@ -24,16 +24,8 @@ export default defineConfig({
         port: 5173,
         host: true,
         proxy: {
-            '/api': {
-                target: 'http://localhost:5000',  // ✅ Corrigé (http:// + pas de ||)
-                changeOrigin: true,
-                secure: false,
-            },
-            '/socket.io': {
-                target: 'http://localhost:5000',
-                changeOrigin: true,
-                ws: true,
-            },
+            '/api': 'http://localhost:5000',  // ✅ Corrigé (http:// + pas de ||) 
+            '/socket.io': 'http://localhost:5000',
         },
     },
     build: {
