@@ -25,12 +25,12 @@ export default defineConfig({
         host: true,
         proxy: {
             '/api': {
-                target: 'https://alkherpay.onrender.com'+ 'localhost:5000',  // ✅ Corrigé (http:// + pas de ||)
+                target: 'http://localhost:5000',  // ✅ Corrigé (http:// + pas de ||)
                 changeOrigin: true,
                 secure: false,
             },
             '/socket.io': {
-                target: 'https://alkherpay.onrender.com' + 'localhost:5000',  // ✅ Corrigé (http:// + pas de ||)
+                target: 'http://localhost:5000',  // ✅ Corrigé (http:// + pas de ||)
                 changeOrigin: true,
                 ws: true,
             },

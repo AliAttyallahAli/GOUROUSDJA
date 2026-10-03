@@ -88,7 +88,7 @@ const NotificationDetail = lazy(() => import('./pages/NotificationDetail'))
 // ============================================
 // CONFIG SOCKET
 // ============================================
-const SOCKET_URL = import.meta.env.VITE_API_URL ||'https://alkherpay.onrender.com'
+const SOCKET_URL = import.meta.env.VITE_API_URL ||'http://localhost:5000'
 let socket = null
 
 // ============================================
@@ -127,7 +127,7 @@ function App() {
                 const userData = JSON.parse(savedUser)
 
                 try {
-                    const response = await axios.get(`${API_URL}/api/auth/verify`, {
+                     const response = await  axios.get(`/api/auth/verify`, {
                         headers: { Authorization: `Bearer ${token}` }
                     })
 

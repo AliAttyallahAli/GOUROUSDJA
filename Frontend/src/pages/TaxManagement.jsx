@@ -92,8 +92,8 @@ const TaxManagement = ({ user }) => {
     // ============================================
     const fetchCommuneBalance = useCallback(async () => {
         try {
-            const response = await axios.get(
-                `${API_URL}/api/commune/info`,
+             const response = await axios.get(
+                ` /api/commune/info`,
                 getAuthHeaders()
             );
 
@@ -127,8 +127,8 @@ const TaxManagement = ({ user }) => {
 
             // Fallback : récupérer le solde via /api/wallet/balance
             try {
-                const walletRes = await axios.get(
-                    `${API_URL}/api/wallet/balance`,
+                const walletRes =  (
+                    ` /api/wallet/balance`,
                     getAuthHeaders()
                 );
                 const balance = walletRes.data?.balance 
@@ -148,8 +148,8 @@ const TaxManagement = ({ user }) => {
     const fetchPayments = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await axios.get(
-                `${API_URL}/api/commune/payments`,
+             const response = await axios.get(
+                ` /api/commune/payments`,
                 getAuthHeaders()
             );
 
@@ -616,8 +616,8 @@ const TaxManagement = ({ user }) => {
     const printReceipt = async (payment) => {
         setPrinting(true);
         try {
-            const response = await axios.get(
-                `${API_URL}/api/tax/receipt/${payment.receipt_number}/print`,
+             const response = await axios.get(
+                ` /api/tax/receipt/${payment.receipt_number}/print`,
                 { ...getAuthHeaders(), responseType: 'text' }
             );
 

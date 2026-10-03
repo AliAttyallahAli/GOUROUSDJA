@@ -30,7 +30,7 @@ function AgentApplicationDetail({ user }) {
     setLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`/api/admin/agent-applications/${id}`, {
+       const response = await axios.get(`/api/admin/agent-applications/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setApplication(response.data)
@@ -88,7 +88,7 @@ function AgentApplicationDetail({ user }) {
   const downloadDocument = async (type) => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`/api/admin/agent-applications/${id}/download/${type}`, {
+       const response = await axios.get(`/api/admin/agent-applications/${id}/download/${type}`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       })

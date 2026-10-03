@@ -101,11 +101,11 @@ function Profile({ user }) {
     try {
       const token = localStorage.getItem('accessToken')
       
-      const profileRes = await axios.get('/api/user/me', {
+      const profileRes =  ('/api/user/me', {
         headers: { Authorization: `Bearer ${token}` }
       })
       
-      const balanceRes = await axios.get('/api/wallet/balance', {
+      const balanceRes =  ('/api/wallet/balance', {
         headers: { Authorization: `Bearer ${token}` }
       })
       
@@ -172,7 +172,7 @@ function Profile({ user }) {
   const fetchReferralInfo = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get('/api/referral/stats', {
+       const response = await axios.get('/api/referral/stats', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setReferralStats(response.data)
@@ -189,7 +189,7 @@ function Profile({ user }) {
 
   const fetchProvinces = async () => {
     try {
-      const response = await axios.get('/api/provinces')
+       const response = await axios.get('/api/provinces')
       if (Array.isArray(response.data)) {
         setProvinces(response.data)
       }
@@ -201,7 +201,7 @@ function Profile({ user }) {
   const fetchKycStatus = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get('/api/kyc/status', {
+       const response = await axios.get('/api/kyc/status', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setKycStatus(response.data)
@@ -238,7 +238,7 @@ function Profile({ user }) {
   const fetchKycHistory = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get('/api/kyc/history', {
+       const response = await axios.get('/api/kyc/history', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setKycHistory(response.data || [])
@@ -448,7 +448,7 @@ function Profile({ user }) {
   const downloadKycDocument = async (documentId, filename) => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`/api/kyc/download/${documentId}`, {
+       const response = await axios.get(`/api/kyc/download/${documentId}`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       })

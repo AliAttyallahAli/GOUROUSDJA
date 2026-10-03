@@ -102,11 +102,11 @@ function Profile({ user }) {
     try {
       const token = localStorage.getItem('accessToken')
       
-      const profileRes = await axios.get(`${API_URL}/api/user/me`, {
+      const profileRes =  (` /api/user/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       
-      const balanceRes = await axios.get(`${API_URL}/api/wallet/balance`, {
+      const balanceRes =  (` /api/wallet/balance`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       
@@ -173,7 +173,7 @@ function Profile({ user }) {
   const fetchReferralInfo = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`${API_URL}/api/referral/stats`, {
+       const response = await  axios.get(`/api/referral/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setReferralStats(response.data)
@@ -190,7 +190,7 @@ function Profile({ user }) {
 
   const fetchProvinces = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/provinces`)
+       const response = await  axios.get(`/api/provinces`)
       if (Array.isArray(response.data)) {
         setProvinces(response.data)
       }
@@ -202,7 +202,7 @@ function Profile({ user }) {
   const fetchKycStatus = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`${API_URL}/api/kyc/status`, {
+       const response = await  axios.get(`/api/kyc/status`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setKycStatus(response.data)
@@ -239,7 +239,7 @@ function Profile({ user }) {
   const fetchKycHistory = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`${API_URL}/api/kyc/history`, {
+       const response = await  axios.get(`/api/kyc/history`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setKycHistory(response.data || [])
@@ -267,7 +267,7 @@ function Profile({ user }) {
     setSaving(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(`${API_URL}/api/user/profile`, {
+      await axios.put(` /api/user/profile`, {
         fullname: formData.fullname,
         email: formData.email,
         city: formData.city,
@@ -337,7 +337,7 @@ function Profile({ user }) {
 
         console.log('📝 Envoi niveau 2 avec tous les champs:', payload)
 
-        const response = await axios.post(`${API_URL}/api/kyc/submit-level-2`, payload, {
+        const response = await axios.post(` /api/kyc/submit-level-2`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -381,7 +381,7 @@ function Profile({ user }) {
         formDataKyc.append('proofOfAddress', selectedFiles.proofOfAddress)
       }
       
-      await axios.post(`${API_URL}/api/kyc/submit`, formDataKyc, {
+      await axios.post(` /api/kyc/submit`, formDataKyc, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -449,7 +449,7 @@ function Profile({ user }) {
   const downloadKycDocument = async (documentId, filename) => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`${API_URL}/api/kyc/download/${documentId}`, {
+       const response = await  axios.get(`/api/kyc/download/${documentId}`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       })

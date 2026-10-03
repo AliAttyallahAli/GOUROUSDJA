@@ -105,7 +105,7 @@ const Investments = ({ user, socket }) => {
     const checkKYCStatus = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/kyc/status`, {
+             const response = await  axios.get(`/api/kyc/status`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -135,7 +135,7 @@ const Investments = ({ user, socket }) => {
     const checkKYCBeforeCreate = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/kyc/status`, {
+             const response = await  axios.get(`/api/kyc/status`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -202,7 +202,7 @@ const Investments = ({ user, socket }) => {
     const fetchUserBalance = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/wallet/balance`, {
+             const response = await  axios.get(`/api/wallet/balance`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUserBalance(response.data.balance || 0);
@@ -216,7 +216,7 @@ const Investments = ({ user, socket }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/investment/companies`, {
+             const response = await  axios.get(`/api/investment/companies`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = response.data.data || response.data || [];
@@ -235,7 +235,7 @@ const Investments = ({ user, socket }) => {
     const fetchMyInvestments = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/investment/my-investments`, {
+             const response = await  axios.get(`/api/investment/my-investments`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = response.data.data || response.data || [];
@@ -249,7 +249,7 @@ const Investments = ({ user, socket }) => {
     const fetchMyCompany = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/investment/my-company`, {
+             const response = await  axios.get(`/api/investment/my-company`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = response.data.data || response.data;
@@ -268,7 +268,7 @@ const Investments = ({ user, socket }) => {
     const fetchInvestorsCount = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/investment/investors-count`, {
+             const response = await  axios.get(`/api/investment/investors-count`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setInvestorsCount(response.data.count || 0);
@@ -281,7 +281,7 @@ const Investments = ({ user, socket }) => {
     const fetchStatistics = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/investment/statistics`, {
+             const response = await  axios.get(`/api/investment/statistics`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (response.data) {
@@ -361,7 +361,7 @@ const Investments = ({ user, socket }) => {
 
             console.log('📝 Création entreprise:', payload);
 
-            const response = await axios.post(`${API_URL}/api/investment/company`, payload, {
+            const response = await axios.post(` /api/investment/company`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -421,7 +421,7 @@ const Investments = ({ user, socket }) => {
 
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.put(`${API_URL}/api/investment/company/${myCompany.id}`, editForm, {
+            const response = await axios.put(` /api/investment/company/${myCompany.id}`, editForm, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -447,7 +447,7 @@ const Investments = ({ user, socket }) => {
     const handleDeleteCompany = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.delete(`${API_URL}/api/investment/company/${myCompany.id}`, {
+            const response = await axios.delete(` /api/investment/company/${myCompany.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -494,7 +494,7 @@ const Investments = ({ user, socket }) => {
         setSubmitting(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post(`${API_URL}/api/investment/invest`, {
+            const response = await axios.post(` /api/investment/invest`, {
                 company_id: selectedCompany.id,
                 amount: amount,
                 shares: sharesCount

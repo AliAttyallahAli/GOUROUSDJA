@@ -19,7 +19,7 @@ function PinSettings({ user }) {
   const checkPinStatus = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get('/api/user/pin-status', {
+       const response = await axios.get('/api/user/pin-status', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setHasPin(response.data.hasPin)

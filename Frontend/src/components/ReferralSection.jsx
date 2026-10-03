@@ -20,7 +20,7 @@ const ReferralSection = ({ user }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/referral/stats`, {
+             const response = await  axios.get(`/api/referral/stats`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setReferralData(response.data);

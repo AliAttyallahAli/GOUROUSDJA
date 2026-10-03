@@ -58,7 +58,7 @@ const BillPayment = ({ user, socket }) => {
     setLoadingBalance(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('/api/wallet/balance', {
+       const response = await axios.get('/api/wallet/balance', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUserBalance(response.data.balance || 0);
@@ -72,7 +72,7 @@ const BillPayment = ({ user, socket }) => {
   const fetchCompanies = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('/api/service-companies', {
+       const response = await axios.get('/api/service-companies', {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       
@@ -94,7 +94,7 @@ const BillPayment = ({ user, socket }) => {
     if (!user) return;
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('/api/bill-payments/history', {
+       const response = await axios.get('/api/bill-payments/history', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPaymentHistory(response.data?.payments || []);

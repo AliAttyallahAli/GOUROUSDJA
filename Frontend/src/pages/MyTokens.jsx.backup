@@ -29,7 +29,7 @@ function MyTokens({ user }) {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/api/tokens/my-tokens`, getAuthHeaders());
+             const response = await  axios.get(`/api/tokens/my-tokens`, getAuthHeaders());
             setMyToken(response.data.my_token);
             setHoldings(response.data.holdings || []);
             setSellOrders(response.data.sell_orders || []);
@@ -43,7 +43,7 @@ function MyTokens({ user }) {
     const handleCancelOrder = async (orderId) => {
         if (!confirm('Annuler cet ordre de vente ?')) return;
         try {
-            await axios.delete(`${API_URL}/api/tokens/orders/${orderId}`, getAuthHeaders());
+            await axios.delete(` /api/tokens/orders/${orderId}`, getAuthHeaders());
             toast.success('Ordre annulé');
             fetchData();
         } catch (error) {

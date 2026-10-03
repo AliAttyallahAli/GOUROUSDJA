@@ -53,7 +53,7 @@ const LoanRequest = ({ user, socket }) => {
     const checkKYC = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/kyc/status`, {
+             const response = await  axios.get(`/api/kyc/status`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setKycStatus(response.data);
@@ -65,7 +65,7 @@ const LoanRequest = ({ user, socket }) => {
     const fetchMyRequests = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/loans/my-requests` , {
+             const response = await  axios.get(`/api/loans/my-requests` , {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setMyRequests(response.data.data || []);
@@ -77,7 +77,7 @@ const LoanRequest = ({ user, socket }) => {
     const fetchMyLoans = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/loans/my-loans`, {
+             const response = await  axios.get(`/api/loans/my-loans`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setMyLoans(response.data.data || []);
@@ -103,7 +103,7 @@ const LoanRequest = ({ user, socket }) => {
         
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post(`${API_URL}/api/loans/calculate`, {
+            const response = await axios.post(` /api/loans/calculate`, {
                 amount, duration_months: duration
             }, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -133,7 +133,7 @@ const LoanRequest = ({ user, socket }) => {
         setSubmitting(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post(`${API_URL}/api/loans/request`, formData, {
+            const response = await axios.post(` /api/loans/request`, formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -160,7 +160,7 @@ const LoanRequest = ({ user, socket }) => {
     const handleRepay = async (loanId, amount) => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post(`${API_URL}/api/loans/${loanId}/repay`, 
+            const response = await axios.post(` /api/loans/${loanId}/repay`, 
                 { amount }, 
                 { headers: { Authorization: `Bearer ${token}` } }
             );

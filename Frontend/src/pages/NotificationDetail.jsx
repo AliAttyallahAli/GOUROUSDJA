@@ -34,7 +34,7 @@ function NotificationDetail({ user }) {
     setLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`/api/notifications/${id}`, {
+       const response = await axios.get(`/api/notifications/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotification(response.data)

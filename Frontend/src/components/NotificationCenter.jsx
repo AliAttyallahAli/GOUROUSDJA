@@ -64,7 +64,7 @@ function NotificationCenter({ user, socket }) {
     setLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`${API_URL}/api/notifications`, {
+       const response = await  axios.get(`/api/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications(response.data || [])
@@ -151,7 +151,7 @@ function NotificationCenter({ user, socket }) {
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(`${API_URL}/api/notifications/read-all`, {}, {
+      await axios.put(` /api/notifications/read-all`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
@@ -185,7 +185,7 @@ function NotificationCenter({ user, socket }) {
     
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.delete(`${API_URL}/api/notifications/all`, {
+      await axios.delete(` /api/notifications/all`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications([])

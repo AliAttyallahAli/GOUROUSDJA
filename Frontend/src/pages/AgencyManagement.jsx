@@ -61,7 +61,7 @@ const AgencyManagement = ({ user, socket }) => {
   const fetchAgencyData = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`${API_URL}/api/agency/info`, {
+       const response = await  axios.get(`/api/agency/info`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAgency(response.data);
@@ -82,7 +82,7 @@ const AgencyManagement = ({ user, socket }) => {
   const fetchTrips = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`${API_URL}/api/agency/trips`, {
+       const response = await  axios.get(`/api/agency/trips`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // S'assurer que trips est un tableau
@@ -97,7 +97,7 @@ const AgencyManagement = ({ user, socket }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`/api/agency/bookings?status=${filterStatus}`, {
+       const response = await axios.get(`/api/agency/bookings?status=${filterStatus}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // S'assurer que bookings est un tableau
@@ -114,7 +114,7 @@ const AgencyManagement = ({ user, socket }) => {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`${API_URL}/api/agency/notifications`, {
+       const response = await  axios.get(`/api/agency/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // S'assurer que notifications est un tableau
@@ -131,7 +131,7 @@ const AgencyManagement = ({ user, socket }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      await axios.post(`${API_URL}/api/agency/trips`, tripForm, {
+      await axios.post(` /api/agency/trips`, tripForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Trajet créé avec succès');

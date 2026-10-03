@@ -64,7 +64,7 @@ function TokenMarket({ user }) {
     const fetchTokens = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/api/tokens`, getAuthHeaders());
+             const response = await  axios.get(`/api/tokens`, getAuthHeaders());
             setTokens(response.data.tokens || []);
             setFiltered(response.data.tokens || []);
         } catch (error) {
@@ -77,7 +77,7 @@ function TokenMarket({ user }) {
 
     const fetchMyToken = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/tokens/my-tokens`, getAuthHeaders());
+             const response = await  axios.get(`/api/tokens/my-tokens`, getAuthHeaders());
             setMyToken(response.data.my_token || null);
         } catch (error) {
             console.error('❌ Erreur:', error);
@@ -102,7 +102,7 @@ function TokenMarket({ user }) {
         setSubmitting(true);
         try {
             const response = await axios.post(
-                `${API_URL}/api/tokens/create`,
+                ` /api/tokens/create`,
                 formData,
                 getAuthHeaders()
             );

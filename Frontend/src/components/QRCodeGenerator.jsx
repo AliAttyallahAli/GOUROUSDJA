@@ -24,7 +24,7 @@ function QRCodeGenerator({ user, onClose }) {
         setLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`/api/qr/generate-dynamic?amount=${amountNum || ''}`, {
+             const response = await axios.get(`/api/qr/generate-dynamic?amount=${amountNum || ''}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             

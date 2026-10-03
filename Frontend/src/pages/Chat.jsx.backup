@@ -455,7 +455,7 @@ const Chat = ({ user, socket }) => {
     const fetchCallHistory = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get('/api/chat/call-history', {
+             const response = await axios.get('/api/chat/call-history', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setCallHistory(response.data.data || []);
@@ -471,7 +471,7 @@ const Chat = ({ user, socket }) => {
     const fetchConversations = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get('/api/chat/conversations', {
+             const response = await axios.get('/api/chat/conversations', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setConversations(response.data.data || []);
@@ -485,7 +485,7 @@ const Chat = ({ user, socket }) => {
     const fetchRecentContacts = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get('/api/chat/recent-contacts', {
+             const response = await axios.get('/api/chat/recent-contacts', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setRecentContacts(response.data.data || []);
@@ -498,7 +498,7 @@ const Chat = ({ user, socket }) => {
         try {
             if (showLoading) setLoading(true);
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`/api/chat/messages/${contactId}`, {
+             const response = await axios.get(`/api/chat/messages/${contactId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setMessages(response.data.data || []);

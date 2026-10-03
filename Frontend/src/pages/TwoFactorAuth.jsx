@@ -55,7 +55,7 @@ function TwoFactorAuth({ user }) {
     setLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`${API_URL}/api/user/2fa/status`, {
+       const response = await  axios.get(`/api/user/2fa/status`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setTwoFactorStatus(response.data)
@@ -69,7 +69,7 @@ function TwoFactorAuth({ user }) {
   const fetchTrustedDevices = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`${API_URL}/api/user/2fa/devices`, {
+       const response = await  axios.get(`/api/user/2fa/devices`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setTrustedDevices(response.data || [])
@@ -82,7 +82,7 @@ function TwoFactorAuth({ user }) {
     setSaving(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post(`${API_URL}/api/user/2fa/setup`, {
+      const response = await axios.post(` /api/user/2fa/setup`, {
         method: selectedMethod
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -109,7 +109,7 @@ function TwoFactorAuth({ user }) {
     setVerifying(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post(`${API_URL}/api/user/2fa/verify`, {
+      const response = await axios.post(` /api/user/2fa/verify`, {
         code: verificationCode,
         method: selectedMethod,
         phoneNumber: selectedMethod === 'sms' ? phoneNumber : undefined,
@@ -140,7 +140,7 @@ function TwoFactorAuth({ user }) {
     setSaving(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`${API_URL}/api/user/2fa/disable`, {
+      await axios.post(` /api/user/2fa/disable`, {
         password: disablePassword
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -176,7 +176,7 @@ function TwoFactorAuth({ user }) {
   const generateNewBackupCodes = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post(`${API_URL}/api/user/2fa/backup-codes`, {}, {
+      const response = await axios.post(` /api/user/2fa/backup-codes`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setRecoveryCodes(response.data.backupCodes)

@@ -298,7 +298,7 @@ function AdminPanel({ user, socket }) {
     setBlogLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get('/api/blog/posts?status=all', {
+       const response = await axios.get('/api/blog/posts?status=all', {
         headers: { Authorization: `Bearer ${token}` }
       })
       const posts = Array.isArray(response.data.posts) ? response.data.posts : []
@@ -316,7 +316,7 @@ function AdminPanel({ user, socket }) {
     setKycLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`/api/admin/kyc/requests?status=${kycFilter}`, {
+       const response = await axios.get(`/api/admin/kyc/requests?status=${kycFilter}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setKycRequests(response.data.requests || [])
@@ -342,7 +342,7 @@ function AdminPanel({ user, socket }) {
       }
 
       // ✅ Utiliser axios comme les autres fonctions
-      const response = await axios.get('/api/service-companies', {
+       const response = await axios.get('/api/service-companies', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -372,7 +372,7 @@ function AdminPanel({ user, socket }) {
     setTravelAgenciesLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('/api/admin/travel-agencies', {
+       const response = await axios.get('/api/admin/travel-agencies', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTravelAgencies(response.data || []);
@@ -386,7 +386,7 @@ function AdminPanel({ user, socket }) {
 
   const fetchProvinces = async () => {
     try {
-      const response = await axios.get('/api/provinces');
+       const response = await axios.get('/api/provinces');
       if (Array.isArray(response.data)) {
         setProvinces(response.data);
       } else {

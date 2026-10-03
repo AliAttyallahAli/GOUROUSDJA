@@ -119,7 +119,7 @@ function Settings({ user }) {
     // ============================================
     const fetchProvinces = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/provinces`, getAuthHeaders())
+             const response = await  axios.get(`/api/provinces`, getAuthHeaders())
             if (Array.isArray(response.data)) {
                 setProvinces(response.data)
             }
@@ -130,7 +130,7 @@ function Settings({ user }) {
 
     const fetchUserProfile = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/user/me`, getAuthHeaders())
+             const response = await  axios.get(`/api/user/me`, getAuthHeaders())
             setProfileData({
                 fullname: response.data.fullname || '',
                 phone: response.data.phone || '',
@@ -146,7 +146,7 @@ function Settings({ user }) {
 
     const fetchTransactionPinStatus = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/user/pin-status`, getAuthHeaders())
+             const response = await  axios.get(`/api/user/pin-status`, getAuthHeaders())
             setTransactionPin(prev => ({
                 ...prev,
                 isPinSet: response.data.isPinSet || false
@@ -158,7 +158,7 @@ function Settings({ user }) {
 
     const fetch2FAStatus = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/user/2fa/status`, getAuthHeaders())
+             const response = await  axios.get(`/api/user/2fa/status`, getAuthHeaders())
             setTwoFactorEnabled(response.data.enabled || false)
         } catch (error) {
             console.error('Erreur statut 2FA:', error)
@@ -167,7 +167,7 @@ function Settings({ user }) {
 
     const fetchUserPreferences = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/user/preferences`, getAuthHeaders())
+             const response = await  axios.get(`/api/user/preferences`, getAuthHeaders())
                 .catch(() => ({ data: null }))
 
             if (response.data) {
@@ -186,7 +186,7 @@ function Settings({ user }) {
 
     const fetchAppSettings = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/admin/settings`, getAuthHeaders())
+             const response = await  axios.get(`/api/admin/settings`, getAuthHeaders())
             if (response.data) {
                 setAppSettings(prev => ({ ...prev, ...response.data }))
             }
@@ -202,7 +202,7 @@ function Settings({ user }) {
         e.preventDefault()
         setLoading(true)
         try {
-            await axios.put(`${API_URL}/api/user/profile`, {
+            await axios.put(` /api/user/profile`, {
                 fullname: profileData.fullname,
                 email: profileData.email,
                 province: profileData.province,
@@ -237,7 +237,7 @@ function Settings({ user }) {
 
         setLoading(true)
         try {
-            await axios.post(`${API_URL}/api/user/change-password`, {
+            await axios.post(` /api/user/change-password`, {
                 oldPassword: securityData.currentPassword,
                 newPassword: securityData.newPassword
             }, getAuthHeaders())
@@ -272,7 +272,7 @@ function Settings({ user }) {
 
         setLoading(true)
         try {
-            await axios.post(`${API_URL}/api/user/set-transaction-pin`, {
+            await axios.post(` /api/user/set-transaction-pin`, {
                 pin: transactionPin.newPin
             }, getAuthHeaders())
 
@@ -310,7 +310,7 @@ function Settings({ user }) {
 
         setLoading(true)
         try {
-            await axios.post(`${API_URL}/api/user/change-transaction-pin`, {
+            await axios.post(` /api/user/change-transaction-pin`, {
                 currentPin: transactionPin.currentPin,
                 newPin: transactionPin.newPin
             }, getAuthHeaders())
@@ -336,7 +336,7 @@ function Settings({ user }) {
 
         setLoading(true)
         try {
-            await axios.post(`${API_URL}/api/user/request-pin-reset`, {
+            await axios.post(` /api/user/request-pin-reset`, {
                 reason: resetReason
             }, getAuthHeaders())
 
@@ -359,7 +359,7 @@ function Settings({ user }) {
         try {
             console.log('📤 Envoi préférences:', preferences)
 
-            await axios.post(`${API_URL}/api/user/preferences`, preferences, getAuthHeaders())
+            await axios.post(` /api/user/preferences`, preferences, getAuthHeaders())
 
             // Appliquer le thème immédiatement
             document.documentElement.classList.toggle('light', preferences.theme === 'light')
@@ -394,7 +394,7 @@ function Settings({ user }) {
     const updateAppSettings = async () => {
         setLoading(true)
         try {
-            await axios.put(`${API_URL}/api/admin/settings`, appSettings, getAuthHeaders())
+            await axios.put(` /api/admin/settings`, appSettings, getAuthHeaders())
             toast.success('✅ Paramètres mis à jour')
         } catch (error) {
             toast.error('Erreur mise à jour')

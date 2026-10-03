@@ -77,9 +77,9 @@ function AdminCards({ user }) {
         setLoading(true);
         try {
             const url = filter === 'all'
-                ? `${API_URL}/api/admin/cards`
-                : `${API_URL}/api/admin/cards?status=${filter}`;
-            const response = await axios.get(url, getAuthHeaders());
+                ? ` /api/admin/cards`
+                : ` /api/admin/cards?status=${filter}`;
+             const response = await axios.get(url, getAuthHeaders());
             setCards(extractArray(response.data, 'cards', 'data'));
         } catch (error) {
             console.error('❌ Erreur:', error);
@@ -92,7 +92,7 @@ function AdminCards({ user }) {
 
     const fetchStats = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/admin/cards/stats`, getAuthHeaders());
+             const response = await  axios.get(`/api/admin/cards/stats`, getAuthHeaders());
             setStats(response.data.stats || {});
         } catch (error) {
             console.error('❌ Erreur stats:', error);
@@ -102,7 +102,7 @@ function AdminCards({ user }) {
     const handleApprove = async (cardId) => {
         try {
             const response = await axios.post(
-                `${API_URL}/api/admin/cards/${cardId}/approve`,
+                ` /api/admin/cards/${cardId}/approve`,
                 { daily_limit: 500000, monthly_limit: 5000000 },
                 getAuthHeaders()
             );
@@ -123,7 +123,7 @@ function AdminCards({ user }) {
         if (!reason) return;
 
         try {
-            await axios.post(`${API_URL}/api/admin/cards/${cardId}/reject`, { reason }, getAuthHeaders());
+            await axios.post(` /api/admin/cards/${cardId}/reject`, { reason }, getAuthHeaders());
             toast.success('Carte rejetée');
             fetchCards();
         } catch (error) {
@@ -134,7 +134,7 @@ function AdminCards({ user }) {
     const handleBlock = async (cardId) => {
         if (!confirm('Bloquer cette carte ?')) return;
         try {
-            await axios.post(`${API_URL}/api/admin/cards/${cardId}/block`, {}, getAuthHeaders());
+            await axios.post(` /api/admin/cards/${cardId}/block`, {}, getAuthHeaders());
             toast.success('Carte bloquée');
             fetchCards();
         } catch (error) {
@@ -144,7 +144,7 @@ function AdminCards({ user }) {
 
     const handleUnblock = async (cardId) => {
         try {
-            await axios.post(`${API_URL}/api/admin/cards/${cardId}/unblock`, {}, getAuthHeaders());
+            await axios.post(` /api/admin/cards/${cardId}/unblock`, {}, getAuthHeaders());
             toast.success('Carte débloquée');
             fetchCards();
         } catch (error) {
@@ -158,8 +158,8 @@ function AdminCards({ user }) {
     const fetchPinResets = async () => {
         setLoadingResets(true);
         try {
-            const response = await axios.get(
-                `${API_URL}/api/admin/cards/pin-resets?status=pending`,
+             const response = await axios.get(
+                ` /api/admin/cards/pin-resets?status=pending`,
                 getAuthHeaders()
             );
             setPinResets(extractArray(response.data, 'requests'));
@@ -175,7 +175,7 @@ function AdminCards({ user }) {
         setProcessingReset(resetId);
         try {
             const response = await axios.post(
-                `${API_URL}/api/admin/cards/pin-resets/${resetId}/approve`,
+                ` /api/admin/cards/pin-resets/${resetId}/approve`,
                 { note: 'Réinitialisation approuvée' },
                 getAuthHeaders()
             );
@@ -200,7 +200,7 @@ function AdminCards({ user }) {
         setProcessingReset(resetId);
         try {
             await axios.post(
-                `${API_URL}/api/admin/cards/pin-resets/${resetId}/reject`,
+                ` /api/admin/cards/pin-resets/${resetId}/reject`,
                 { reason },
                 getAuthHeaders()
             );
@@ -220,7 +220,7 @@ function AdminCards({ user }) {
     const fetchFees = async () => {
         setLoadingFees(true);
         try {
-            const response = await axios.get(`${API_URL}/api/admin/cards/fees`, getAuthHeaders());
+             const response = await  axios.get(`/api/admin/cards/fees`, getAuthHeaders());
             setFeesData(response.data);
         } catch (error) {
             console.error('❌ Erreur frais:', error);

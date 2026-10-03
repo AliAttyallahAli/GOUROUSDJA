@@ -55,7 +55,7 @@ function AdminTaxes({ user }) {
         setLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/admin/communes`, {
+             const response = await  axios.get(`/api/admin/communes`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -122,12 +122,12 @@ function AdminTaxes({ user }) {
 
         try {
             if (editingCommune) {
-                await axios.put(`${API_URL}/api/admin/communes/${editingCommune.id}`, dataToSend, {
+                await axios.put(` /api/admin/communes/${editingCommune.id}`, dataToSend, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 toast.success('✅ Commune modifiée');
             } else {
-                await axios.post(`${API_URL}/api/admin/communes`, dataToSend, {
+                await axios.post(` /api/admin/communes`, dataToSend, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 toast.success('✅ Commune créée avec succès');
@@ -157,7 +157,7 @@ function AdminTaxes({ user }) {
         setDeleting(true);
         const token = localStorage.getItem('accessToken');
         try {
-            await axios.delete(`${API_URL}/api/admin/communes/${communeToDelete.id}`, {
+            await axios.delete(` /api/admin/communes/${communeToDelete.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success('✅ Commune supprimée');

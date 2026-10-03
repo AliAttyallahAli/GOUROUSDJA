@@ -14,7 +14,7 @@ function Announcements() {
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/announcements`)
+       const response = await  axios.get(`/api/announcements`)
       setAnnouncements(response.data)
     } catch (error) {
       console.error('Erreur chargement annonces:', error)

@@ -76,60 +76,60 @@ function History({ user }) {
             const token = localStorage.getItem('accessToken')
             const headers = { Authorization: `Bearer ${token}` }
 
-            let url = `${API_URL}/api/wallet/history?limit=50&offset=${(page - 1) * 50}`
+            let url = ` /api/wallet/history?limit=50&offset=${(page - 1) * 50}`
             if (dateRange.start) url += `&startDate=${dateRange.start}`
             if (dateRange.end) url += `&endDate=${dateRange.end}`
 
-            const txResponse = await axios.get(url, { headers })
+            const txResponse =  (url, { headers })
             const walletTransactions = txResponse.data.transactions || []
             setTransactions(walletTransactions)
             setTotal(txResponse.data.total || 0)
 
             let investmentsData = []
             try {
-                const r = await axios.get(`${API_URL}/api/investment/my-investments`, { headers })
+                const r =  (` /api/investment/my-investments`, { headers })
                 investmentsData = r.data.data || r.data || []
                 setInvestments(investmentsData)
             } catch (e) { console.log('ℹ️ Aucun investissement') }
 
             let savingsData = []
             try {
-                const r = await axios.get(`${API_URL}/api/savings/transactions`, { headers })
+                const r =  (` /api/savings/transactions`, { headers })
                 savingsData = r.data.data || []
                 setSavingsTransactions(savingsData)
             } catch (e) { console.log('ℹ️ Aucune épargne') }
 
             let withdrawalData = []
             try {
-                const r = await axios.get(`${API_URL}/api/savings/withdrawal-requests`, { headers })
+                const r =  (` /api/savings/withdrawal-requests`, { headers })
                 withdrawalData = r.data.data || []
                 setWithdrawalRequests(withdrawalData)
             } catch (e) { console.log('ℹ️ Aucune demande retrait') }
 
             let cardData = []
             try {
-                const r = await axios.get(`${API_URL}/api/cards/my-transactions`, { headers })
+                const r =  (` /api/cards/my-transactions`, { headers })
                 cardData = r.data.transactions || []
                 setCardTransactions(cardData)
             } catch (e) { console.log('ℹ️ Aucune transaction carte') }
 
             let taxData = []
             try {
-                const r = await axios.get(`${API_URL}/api/tax/payments`, { headers })
+                const r =  (` /api/tax/payments`, { headers })
                 taxData = r.data.payments || []
                 setTaxPayments(taxData)
             } catch (e) { console.log('ℹ️ Aucun paiement taxe') }
 
             let loanData = []
             try {
-                const r = await axios.get(`${API_URL}/api/loans/my-loans`, { headers })
+                const r =  (` /api/loans/my-loans`, { headers })
                 loanData = r.data.loans || r.data.data || []
                 setLoanHistory(loanData)
             } catch (e) { console.log('ℹ️ Aucun prêt') }
 
             let billData = []
             try {
-                const r = await axios.get(`${API_URL}/api/bills/my-payments`, { headers })
+                const r =  (` /api/bills/my-payments`, { headers })
                 billData = r.data.payments || r.data.data || []
                 setBillPayments(billData)
             } catch (e) { console.log('ℹ️ Aucune facture') }

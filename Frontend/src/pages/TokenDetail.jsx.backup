@@ -42,7 +42,7 @@ function TokenDetail({ user }) {
     const fetchToken = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/api/tokens/${id}`, getAuthHeaders());
+             const response = await  axios.get(`/api/tokens/${id}`, getAuthHeaders());
             setToken(response.data.token);
             setSellOrders(response.data.sell_orders || []);
             setMyHolding(response.data.my_holding);
@@ -65,7 +65,7 @@ function TokenDetail({ user }) {
             if (selectedOrder) payload.sell_order_id = selectedOrder.id;
 
             const response = await axios.post(
-                `${API_URL}/api/tokens/${id}/buy`,
+                ` /api/tokens/${id}/buy`,
                 payload,
                 getAuthHeaders()
             );
@@ -85,7 +85,7 @@ function TokenDetail({ user }) {
         setSubmitting(true);
         try {
             const response = await axios.post(
-                `${API_URL}/api/tokens/${id}/sell`,
+                ` /api/tokens/${id}/sell`,
                 { parts_count: sellParts, price_per_part: sellPrice },
                 getAuthHeaders()
             );

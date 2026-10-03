@@ -55,7 +55,7 @@ const CompanyDashboard = ({ user, socket }) => {
   const fetchCompanyData = useCallback(async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`${API_URL}/company/wallet/balance`, {
+       const response = await  axios.get(`/company/wallet/balance`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -77,7 +77,7 @@ const CompanyDashboard = ({ user, socket }) => {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`${API_URL}/notifications`, {
+       const response = await  axios.get(`/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(response.data.data || response.data || []);
@@ -115,7 +115,7 @@ const CompanyDashboard = ({ user, socket }) => {
     setSearchingMeter(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.post(`${API_URL}/bill-payments/search-meter`, {
+      const response = await axios.post(` /bill-payments/search-meter`, {
         meter_number: searchMeter,
         company_id: companyData?.company?.id
       }, {
@@ -161,7 +161,7 @@ const CompanyDashboard = ({ user, socket }) => {
     setPaying(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.post(`${API_URL}/bill-payment`, {
+      const response = await axios.post(` /bill-payment`, {
         company_id: companyData?.company?.id,
         customer_name: paymentData.customer_name,
         customer_phone: paymentData.customer_phone,
@@ -222,7 +222,7 @@ const CompanyDashboard = ({ user, socket }) => {
     
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.post(`${API_URL}/company/transfer`, {
+      const response = await axios.post(` /company/transfer`, {
         to_phone: transferPhone,
         amount: amountNum,
         description: `Transfert depuis ${companyData?.company?.name}`

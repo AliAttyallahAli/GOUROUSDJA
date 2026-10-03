@@ -44,7 +44,7 @@ const InvestmentDetail = ({ user, socket }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`/api/investment/companies/${id}`, {
+       const response = await axios.get(`/api/investment/companies/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -87,7 +87,7 @@ const InvestmentDetail = ({ user, socket }) => {
   const fetchUserBalance = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('/api/wallet/balance', {
+       const response = await axios.get('/api/wallet/balance', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUserBalance(response.data.balance || 0);

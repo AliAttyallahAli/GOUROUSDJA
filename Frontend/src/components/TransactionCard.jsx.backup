@@ -58,7 +58,7 @@ function TransactionCard({ transaction, currentUserPhone }) {
     setDownloading(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`/api/transaction/${transaction.reference}/xml`, {
+       const response = await axios.get(`/api/transaction/${transaction.reference}/xml`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       })

@@ -59,7 +59,7 @@ function Deposit({ user }) {
   const checkUserPin = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`${API_URL}/api/user/pin-status`, {
+       const response = await  axios.get(`/api/user/pin-status`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setHasPin(response.data.hasPin || false)
@@ -75,7 +75,7 @@ function Deposit({ user }) {
     setLoadingAgents(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`${API_URL}/api/agents`, {
+       const response = await  axios.get(`/api/agents`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const agentsData = response.data.agents || response.data || []
@@ -148,7 +148,7 @@ function Deposit({ user }) {
     
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post(`${API_URL}/api/deposit`, {
+      const response = await axios.post(` /api/deposit`, {
         amount: pendingDeposit.amount,
         agent_id: pendingDeposit.agent_id,
         description: pendingDeposit.description

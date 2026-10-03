@@ -63,7 +63,7 @@ function NotificationCenter({ user, socket }) {
     setLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get('/api/notifications', {
+       const response = await axios.get('/api/notifications', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications(response.data || [])

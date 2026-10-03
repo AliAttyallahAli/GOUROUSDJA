@@ -74,7 +74,7 @@ function CardPayment({ user }) {
         setLoading(true);
         try {
             const response = await axios.post(
-                `${API_URL}/api/cards/verify`,
+                ` /api/cards/verify`,
                 { card_number: cardNumber, pin },
                 getAuthHeaders()
             );
@@ -124,7 +124,7 @@ function CardPayment({ user }) {
         setLoading(true);
         try {
             const response = await axios.post(
-                `${API_URL}/api/cards/pay`,
+                ` /api/cards/pay`,
                 {
                     card_number: cardNumber,
                     pin,

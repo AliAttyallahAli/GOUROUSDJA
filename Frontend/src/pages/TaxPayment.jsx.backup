@@ -72,7 +72,7 @@ const TaxPayment = ({ user }) => {
     const fetchCommunes = async () => {
         setLoadingCommunes(true);
         try {
-            const response = await axios.get(`${API_URL}/api/communes`, getAuthHeaders());
+             const response = await  axios.get(`/api/communes`, getAuthHeaders());
             console.log('📥 Communes:', response.data);
             const communesData = extractArray(response.data, 'communes', 'data');
             setCommunes(communesData);
@@ -87,7 +87,7 @@ const TaxPayment = ({ user }) => {
 
     const fetchPaymentHistory = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/tax/payments`, getAuthHeaders());
+             const response = await  axios.get(`/api/tax/payments`, getAuthHeaders());
             const paymentsData = extractArray(response.data, 'payments', 'data');
             setPaymentHistory(paymentsData);
         } catch (error) {
@@ -98,7 +98,7 @@ const TaxPayment = ({ user }) => {
 
     const fetchWalletBalance = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/wallet/balance`, getAuthHeaders());
+             const response = await  axios.get(`/api/wallet/balance`, getAuthHeaders());
             const balance = response.data?.balance || response.data?.wallet?.balance || 0;
             setWalletBalance(Number(balance) || 0);
         } catch (error) {
@@ -169,7 +169,7 @@ const TaxPayment = ({ user }) => {
                 notes: `Paiement ${formData.taxType} - ${formData.taxPeriod}`
             };
 
-            const response = await axios.post(`${API_URL}/api/tax/pay`, paymentData, getAuthHeaders());
+            const response = await axios.post(` /api/tax/pay`, paymentData, getAuthHeaders());
 
             if (response.data.success) {
                 setPaymentReceipt({
@@ -202,8 +202,8 @@ const TaxPayment = ({ user }) => {
         setPrinting(true);
 
         try {
-            const response = await axios.get(
-                `${API_URL}/api/tax/receipt/${paymentReceipt.receipt_number}/print`,
+             const response = await axios.get(
+                ` /api/tax/receipt/${paymentReceipt.receipt_number}/print`,
                 { ...getAuthHeaders(), responseType: 'text' }
             );
 

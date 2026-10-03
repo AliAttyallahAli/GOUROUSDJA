@@ -66,7 +66,7 @@ app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Port
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 9000;
 
 // Clé secrète JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'alkherpay_super_secret_key_2024';
@@ -1927,7 +1927,7 @@ const fetchAgents = async () => {
     }
 
     // Ne pas envoyer de token pour cette requête publique
-    const response = await axios.get('/api/agents', { params })
+     const response = await axios.get('/api/agents', { params })
 
     if (response.data && response.data.agents) {
       setAgents(response.data.agents)
@@ -5924,7 +5924,7 @@ app.post('/api/kyc/check-limit', authenticateToken, async (req, res) => {
   const { amount, type } = req.body; // type: 'transfer', 'withdraw'
 
   try {
-    const limitsRes = await axios.get('http://localhost:5000/api/kyc/limits', {
+    const limitsRes =  ('http://localhost:5000/api/kyc/limits', {
       headers: { Authorization: req.headers.authorization }
     });
 
