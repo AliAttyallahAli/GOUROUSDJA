@@ -12,7 +12,7 @@ import {
 import Layout from '../components/Layout';
 
 // ✅ API_URL vide → utilise le proxy Vite
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 // ✅ Extraction robuste
 const extractArray = (data, ...keys) => {

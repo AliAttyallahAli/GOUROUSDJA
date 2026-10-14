@@ -10,7 +10,7 @@ import {
   FaSearch, FaChevronLeft, FaChevronRight
 } from 'react-icons/fa'
 // Supprimer FaSpinner pour éviter les erreurs DOM
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 function AgentApplicationsManager() {
   const [applications, setApplications] = useState([])

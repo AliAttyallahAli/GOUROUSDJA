@@ -20,7 +20,7 @@ import {
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import KYCStatus from '../components/KYCStatus';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const Investments = ({ user, socket }) => {
     const navigate = useNavigate();

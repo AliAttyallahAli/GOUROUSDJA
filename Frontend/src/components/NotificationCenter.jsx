@@ -9,7 +9,7 @@ import {
 } from 'react-icons/fa'
 import { formatDistanceToNow } from 'date-fns'
 import fr from 'date-fns/locale/fr'
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 function NotificationCenter({ user, socket }) {
   const [notifications, setNotifications] = useState([])

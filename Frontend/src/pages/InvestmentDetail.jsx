@@ -13,7 +13,7 @@ import {
   FaGlobe, FaMapMarkerAlt, FaBriefcase, FaAward, FaTrophy,
   FaTimes, FaFilePdf, FaHistory, FaExternalLinkAlt, FaLink
 } from 'react-icons/fa';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const InvestmentDetail = ({ user, socket }) => {
   const { id } = useParams();

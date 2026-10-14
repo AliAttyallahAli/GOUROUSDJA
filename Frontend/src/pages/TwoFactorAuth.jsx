@@ -14,7 +14,7 @@ import Layout from '../components/Layout'
 // CORRECTION : Import nommé pour QRCodeSVG
 import { QRCodeSVG } from 'qrcode.react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 function TwoFactorAuth({ user }) {
   const navigate = useNavigate()

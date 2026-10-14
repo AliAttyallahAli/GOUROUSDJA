@@ -4,7 +4,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { FaQrcode, FaDownload, FaCopy, FaShare, FaWhatsapp, FaEnvelope, FaTimes, FaMoneyBillWave, FaSpinner } from 'react-icons/fa';
 import QRCode from 'qrcode.react';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 
 function QRCodeGenerator({ user, onClose }) {

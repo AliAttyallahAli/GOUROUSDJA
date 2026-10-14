@@ -17,7 +17,7 @@ import Layout from '../components/Layout'
 import AgentApplicationsManager from '../components/AgentApplicationsManager'
 import AdminPinManagement from '../components/AdminPinManagement'
 import AdminTaxes from './AdminTaxes'
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 
 function AdminPanel({ user }) {
@@ -595,7 +595,7 @@ function AdminPanel({ user }) {
     if (!selectedUserForReset) return
     
     setResettingKey(true)
-    const token = localStorage.getItem('accessToken')
+    const token = localStorage.getItem('accessToken');
     
     try {
       const response = await axios.post(`${token}/api/admin/users/${selectedUserForReset.id}/reset-key`, {}, {

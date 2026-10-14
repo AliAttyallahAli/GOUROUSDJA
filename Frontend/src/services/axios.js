@@ -6,7 +6,7 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
 })
 // API calls
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 const response = await axios.post(` /api/sonex/auth/login`, payload);
 // Intercepteur de requête
 api.interceptors.request.use(

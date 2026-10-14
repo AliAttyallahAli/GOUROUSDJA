@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 
 // ✅ API_URL vide → utilise le proxy Vite
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const extractArray = (data, ...keys) => {
     if (Array.isArray(data)) return data;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { FaFacebook, FaWhatsapp, FaTelegram, FaGlobe, FaCalendarAlt } from 'react-icons/fa'
 import Layout from '../components/Layout'
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 function Announcements() {
   const [announcements, setAnnouncements] = useState([])

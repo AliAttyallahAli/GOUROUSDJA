@@ -1,6 +1,6 @@
 // src/components/Layout.jsx
-import React, { useState, useEffect } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
     FaHome, FaExchangeAlt, FaHistory, FaUser, FaSignOutAlt, FaComments,
     FaBullhorn, FaCog, FaBell, FaWallet, FaQrcode, FaTimes, FaUsers, FaHandHoldingUsd,
@@ -10,34 +10,38 @@ import {
     FaStore, FaReceipt, FaIdCard, FaClock, FaShare, FaChartLine, FaUserShield,
     FaDownload, FaCopy, FaUniversity, FaCreditCard, FaComment, FaLandmark,
     FaBuilding, FaTint, FaPlug, FaClipboardList, FaBus, FaTicketAlt
-} from 'react-icons/fa'
-import axios from 'axios'
-import toast from 'react-hot-toast'
-import { useTheme } from '../context/ThemeContext'
-import ThemeToggle from './ThemeToggle'
-import NotificationManager from './NotificationManager'
+} from 'react-icons/fa';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useTheme } from '../context/ThemeContext';
+import ThemeToggle from './ThemeToggle';
+import NotificationManager from './NotificationManager';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 function Layout({ user, children, socket }) {
-    const navigate = useNavigate()
-    const location = useLocation()
-    const { isDark } = useTheme()
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { isDark } = useTheme();
 
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-    const [showQR, setShowQR] = useState(false)
-    const [balance, setBalance] = useState(null)
-    const [loadingBalance, setLoadingBalance] = useState(false)
-    const [qrAmount, setQrAmount] = useState('')
-    const [qrDescription, setQrDescription] = useState('')
-    const [qrGenerated, setQrGenerated] = useState(false)
-    const [qrImageUrl, setQrImageUrl] = useState('')
-    const [paymentLink, setPaymentLink] = useState('')
-    const [copied, setCopied] = useState(false)
-    const [generating, setGenerating] = useState(false)
-    const [isCompanyAgent, setIsCompanyAgent] = useState(false)
-    const [unreadMessages, setUnreadMessages] = useState(0)
-    const [hasCard, setHasCard] = useState(false)
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [showQR, setShowQR] = useState(false);
+    const [balance, setBalance] = useState(null);
+    const [loadingBalance, setLoadingBalance] = useState(false);
+    const [qrAmount, setQrAmount] = useState('');
+    const [qrDescription, setQrDescription] = useState('');
+    const [qrGenerated, setQrGenerated] = useState(false);
+    const [qrImageUrl, setQrImageUrl] = useState('');
+    const [paymentLink, setPaymentLink] = useState('');
+    const [copied, setCopied] = useState(false);
+    const [generating, setGenerating] = useState(false);
+    const [isCompanyAgent, setIsCompanyAgent] = useState(false);
+    const [unreadMessages, setUnreadMessages] = useState(0);
+    const [hasCard, setHasCard] = useState(false);
+
+    // ✅ NOUVEAU : Notification locale
+    const [notification, setNotification] = useState(null);
+    const [showNotification, setShowNotification] = useState(false);
 
     // ============================================
     // VÉRIFICATIONS
@@ -46,54 +50,133 @@ function Layout({ user, children, socket }) {
         const checkCompanyStatus = async () => {
             if (user?.role === 'agent') {
                 try {
-                    const token = localStorage.getItem('accessToken')
-                     const response = await  axios.get(`${API_URL}/api/company/check`, {
+                    const token = localStorage.getItem('accessToken');
+                    const response = await axios.get(`${API_URL}/api/company/check`, {
                         headers: { Authorization: `Bearer ${token}` }
-                    }).catch(() => ({ data: { isCompanyAgent: false } }))
-                    setIsCompanyAgent(response.data?.isCompanyAgent || false)
+                    }).catch(() => ({ data: { isCompanyAgent: false } }));
+                    setIsCompanyAgent(response.data?.isCompanyAgent || false);
                 } catch {
-                    setIsCompanyAgent(false)
+                    setIsCompanyAgent(false);
                 }
             }
-        }
-        checkCompanyStatus()
-    }, [user])
+        };
+        checkCompanyStatus();
+    }, [user]);
 
     // Vérifier si l'utilisateur a une carte virtuelle active
     useEffect(() => {
         const checkCardStatus = async () => {
-            if (!user) return
+            if (!user) return;
             try {
-                const token = localStorage.getItem('accessToken')
-                const res =  (`${API_URL}/api/cards/my-card`, {
+                const token = localStorage.getItem('accessToken');
+                const res = await axios.get(`${API_URL}/api/cards/my-card`, {
                     headers: { Authorization: `Bearer ${token}` }
-                }).catch(() => ({ data: { card: null } }))
-                setHasCard(res.data?.card?.status === 'active')
+                }).catch(() => ({ data: { card: null } }));
+                setHasCard(res.data?.card?.status === 'active');
             } catch {
-                setHasCard(false)
+                setHasCard(false);
             }
-        }
-        checkCardStatus()
-    }, [user])
+        };
+        checkCardStatus();
+    }, [user]);
 
     // Messages non lus
     useEffect(() => {
         const fetchUnreadMessages = async () => {
-            if (!user) return
+            if (!user) return;
             try {
-                const token = localStorage.getItem('accessToken')
-                 const response = await  axios.get(`${API_URL}/api/chat/unread-count`, {
+                const token = localStorage.getItem('accessToken');
+                const response = await axios.get(`${API_URL}/api/chat/unread-count`, {
                     headers: { Authorization: `Bearer ${token}` }
-                }).catch(() => ({ data: { count: 0 } }))
-                setUnreadMessages(response.data?.count || 0)
+                }).catch(() => ({ data: { count: 0 } }));
+                setUnreadMessages(response.data?.count || 0);
             } catch {
-                setUnreadMessages(0)
+                setUnreadMessages(0);
             }
-        }
-        fetchUnreadMessages()
-        const interval = setInterval(fetchUnreadMessages, 30000)
-        return () => clearInterval(interval)
-    }, [user])
+        };
+        fetchUnreadMessages();
+        const interval = setInterval(fetchUnreadMessages, 30000);
+        return () => clearInterval(interval);
+    }, [user]);
+
+    // ✅ NOUVEAU : Écouter les notifications Socket.IO
+    useEffect(() => {
+        if (!socket) return;
+
+        // 🔔 Notification reçue
+        socket.on('notification', (notif) => {
+            console.log('🔔 Notification reçue:', notif);
+
+            // Stocker la notification
+            setNotification(notif);
+            setShowNotification(true);
+
+            // Toast visuel
+            const toastType = notif.type || 'info';
+            const message = notif.message || notif.title || 'Nouvelle notification';
+
+            if (toastType === 'success') {
+                toast.success(message, { icon: '✅', duration: 5000 });
+            } else if (toastType === 'error') {
+                toast.error(message, { icon: '❌', duration: 5000 });
+            } else if (toastType === 'warning') {
+                toast(message, { icon: '⚠️', duration: 5000 });
+            } else {
+                toast(message, { icon: '🔔', duration: 5000 });
+            }
+
+            // Auto-hide après 5 secondes
+            setTimeout(() => setShowNotification(false), 5000);
+        });
+
+        // 💰 Mise à jour du solde
+        socket.on('balance_updated', (data) => {
+            if (data.user_id === user?.id) {
+                setBalance(data.new_balance);
+                toast.success(`Solde mis à jour: ${formatAmount(data.new_balance)}`, { icon: '💰' });
+            }
+        });
+
+        // 💸 Transaction mise à jour
+        socket.on('transaction_update', () => {
+            fetchBalance();
+        });
+
+        // 📢 Message reçu
+        socket.on('new_message', (data) => {
+            setUnreadMessages(prev => prev + 1);
+            toast(data.sender_name || 'Nouveau message', {
+                icon: '💬',
+                duration: 4000
+            });
+        });
+
+        // 🎯 Nouvelle annonce
+        socket.on('new_announcement', (data) => {
+            toast(data.title || 'Nouvelle annonce', {
+                icon: '📢',
+                duration: 6000
+            });
+        });
+
+        // 🎉 Paiement reçu
+        socket.on('payment_received', (data) => {
+            toast.success(`+${formatAmount(data.amount)} reçu !`, {
+                icon: '💰',
+                duration: 6000
+            });
+            fetchBalance();
+        });
+
+        return () => {
+            socket.off('notification');
+            socket.off('balance_updated');
+            socket.off('transaction_update');
+            socket.off('new_message');
+            socket.off('new_announcement');
+            socket.off('payment_received');
+        };
+    }, [socket, user]);
 
     // ============================================
     // NAVIGATION ITEMS
@@ -103,14 +186,8 @@ function Layout({ user, children, socket }) {
         { path: '/my-company', icon: FaBuilding, label: 'Mon Entreprise' },
         { path: '/tax-management', icon: FaLandmark, label: 'Gestion des Taxes' },
         { path: '/company/dashboard', icon: FaStore, label: 'Mon Bureau' },
-
-        // ✅ Menu ÉPARGNE
         { path: '/savings', icon: FaPiggyBank, label: 'Épargne' },
-
-        // ✅ Menu INVESTISSEMENTS
         { path: '/investments', icon: FaChartLine, label: 'Investissements' },
-
-        // ✅ Menu PRÊTS
         {
             path: '/loans',
             icon: FaHandHoldingUsd,
@@ -118,8 +195,6 @@ function Layout({ user, children, socket }) {
             subLabel: 'Demander un prêt',
             roles: ['user', 'agent']
         },
-
-        // ✅ Menu CARTE VIRTUELLE
         {
             path: '/virtual-card',
             icon: FaCreditCard,
@@ -128,8 +203,6 @@ function Layout({ user, children, socket }) {
             badge: hasCard ? null : 'NEW',
             roles: ['user', 'agent', 'admin', 'commune']
         },
-
-        // ✅ Menu ENCAISSER (paiement par carte)
         {
             path: '/card-payment',
             icon: FaUniversity,
@@ -137,8 +210,6 @@ function Layout({ user, children, socket }) {
             subLabel: 'Paiement par carte',
             roles: ['user', 'agent', 'admin']
         },
-
-        // ✅ Menu AGENCE (agents)
         {
             path: '/agency-management',
             icon: FaBuilding,
@@ -146,21 +217,18 @@ function Layout({ user, children, socket }) {
             subLabel: 'Gestion voyages',
             roles: ['agent', 'admin']
         },
-        // ✅ Menu MARCHÉ TOKENS
-        { 
-             path: '/token-market', 
-            icon: FaCoins, 
-            label: 'Marché Tokens', 
+        {
+            path: '/token-market',
+            icon: FaCoins,
+            label: 'Marché Tokens',
             subLabel: 'Investir',
-            roles: ['user', 'agent', 'admin', 'commune'] 
+            roles: ['user', 'agent', 'admin', 'commune']
         },
-
         { path: '/history', icon: FaHistory, label: 'Historique' },
         { path: '/settings', icon: FaCog, label: 'Paramètres' },
         { path: '/announcements', icon: FaBell, label: 'Annonces' },
         { path: '/blog', icon: FaBullhorn, label: 'Blog' },
         { path: '/profile', icon: FaUser, label: 'Profil' },
-
         {
             path: '/chat',
             icon: FaComments,
@@ -169,31 +237,27 @@ function Layout({ user, children, socket }) {
             badge: unreadMessages > 0 ? unreadMessages : null,
             roles: ['user', 'agent', 'admin', 'commune']
         },
-    ]
+    ];
 
-    // ✅ Menu Admin (séparé)
     const adminItems = [
         { path: '/admin', icon: FaUserShield, label: 'Admin' },
         { path: '/admin/savings', icon: FaPiggyBank, label: 'Gestion Épargne' },
         { path: '/admin/loans', icon: FaHandHoldingUsd, label: 'Gestion Prêts' },
         { path: '/admin/cards', icon: FaCreditCard, label: 'Gestion Cartes' },
-    ]
+    ];
 
-    // ============================================
-    // FILTRAGE PAR RÔLE
-    // ============================================
     const getFilteredNavItems = () => {
         return navItems.filter(item => {
-            if (!item.roles) return true
-            return item.roles.includes(user?.role)
-        })
-    }
+            if (!item.roles) return true;
+            return item.roles.includes(user?.role);
+        });
+    };
 
-    const filteredNavItems = getFilteredNavItems()
+    const filteredNavItems = getFilteredNavItems();
 
     const allNavItems = user?.role === 'admin'
         ? [...filteredNavItems, ...adminItems]
-        : filteredNavItems
+        : filteredNavItems;
 
     const footerLinks = [
         { path: '/terms', label: 'Conditions' },
@@ -201,178 +265,185 @@ function Layout({ user, children, socket }) {
         { path: '/contact', label: 'Contact' },
         { path: '/faq', label: 'FAQ' },
         { path: '/agents', label: 'Agents' },
-    ]
+    ];
 
     const socialLinks = [
         { icon: FaFacebook, href: 'https://facebook.com/AlkherPay', color: 'hover:bg-[#1877f2]' },
         { icon: FaWhatsapp, href: 'https://wa.me/23562787307', color: 'hover:bg-[#25d366]' },
         { icon: FaTelegram, href: 'https://t.me/AlkherPay', color: 'hover:bg-[#0088cc]' },
         { icon: FaGlobe, href: 'https://alkherpay.td', color: 'hover:bg-blue-500' },
-    ]
+    ];
 
     // ============================================
-    // EFFETS SOLDE / SOCKET
+    // SOLDE
     // ============================================
     useEffect(() => {
         if (user) {
-            fetchBalance()
+            fetchBalance();
         }
-    }, [user])
-
-    useEffect(() => {
-        if (socket) {
-            socket.on('notification', (notification) => {
-                console.log('📢 Nouvelle notification reçue:', notification)
-                toast.success(notification.message, {
-                    duration: 5000,
-                    position: 'top-right',
-                    icon: '🔔'
-                })
-            })
-
-            socket.on('transaction_update', () => fetchBalance())
-            socket.on('balance_updated', (data) => {
-                if (data.user_id === user?.id) setBalance(data.new_balance)
-            })
-        }
-
-        return () => {
-            if (socket) {
-                socket.off('notification')
-                socket.off('transaction_update')
-                socket.off('balance_updated')
-            }
-        }
-    }, [socket, user])
+    }, [user]);
 
     const fetchBalance = async () => {
-        if (loadingBalance) return
-        setLoadingBalance(true)
+        if (loadingBalance) return;
+        setLoadingBalance(true);
         try {
-            const token = localStorage.getItem('accessToken')
-             const response = await  axios.get(`${API_URL}/api/wallet/balance`, {
+            const token = localStorage.getItem('accessToken');
+            const response = await axios.get(`${API_URL}/api/wallet/balance`, {
                 headers: { Authorization: `Bearer ${token}` }
-            })
-            setBalance(response.data.balance)
+            });
+            setBalance(response.data.balance);
         } catch (error) {
-            console.error('Erreur chargement solde:', error)
+            console.error('Erreur chargement solde:', error);
         } finally {
-            setLoadingBalance(false)
+            setLoadingBalance(false);
         }
-    }
+    };
 
     const handleLogout = async () => {
         try {
-            const token = localStorage.getItem('accessToken')
+            const token = localStorage.getItem('accessToken');
             await axios.post(`${API_URL}/api/auth/logout`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
-            })
+            });
         } catch (error) {
-            console.error('Erreur déconnexion:', error)
+            console.error('Erreur déconnexion:', error);
         } finally {
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
-            localStorage.removeItem('user')
-            toast.success('Déconnecté avec succès')
-            navigate('/login')
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+            toast.success('Déconnecté avec succès');
+            navigate('/login');
         }
-    }
+    };
 
     // ============================================
     // QR CODE
     // ============================================
     const generatePaymentLink = () => {
-        const amountNum = parseInt(qrAmount)
+        const amountNum = parseInt(qrAmount);
         if (amountNum && amountNum < 25) {
-            toast.error('Le montant minimum est de 25 FCFA')
-            return null
+            toast.error('Le montant minimum est de 25 FCFA');
+            return null;
         }
 
-        const params = new URLSearchParams()
-        if (user?.phone) params.append('phone', user.phone)
-        if (amountNum) params.append('amount', amountNum)
-        if (qrDescription) params.append('description', qrDescription)
+        const params = new URLSearchParams();
+        if (user?.phone) params.append('phone', user.phone);
+        if (amountNum) params.append('amount', amountNum);
+        if (qrDescription) params.append('description', qrDescription);
 
-        return `${window.location.origin}/transfer?${params.toString()}`
-    }
+        return `${window.location.origin}/transfer?${params.toString()}`;
+    };
 
     const generateDynamicQR = async () => {
-        const link = generatePaymentLink()
-        if (!link) return
+        const link = generatePaymentLink();
+        if (!link) return;
 
-        setGenerating(true)
-
+        setGenerating(true);
         try {
-            const encodedLink = encodeURIComponent(link)
-            const qrApiUrl = `https://quickchart.io/qr?text=${encodedLink}&size=250&margin=2`
+            const encodedLink = encodeURIComponent(link);
+            const qrApiUrl = `https://quickchart.io/qr?text=${encodedLink}&size=250&margin=2`;
 
-            const response = await fetch(qrApiUrl)
+            const response = await fetch(qrApiUrl);
             if (response.ok) {
-                setPaymentLink(link)
-                setQrImageUrl(qrApiUrl)
-                setQrGenerated(true)
-                toast.success('QR code généré avec succès !')
+                setPaymentLink(link);
+                setQrImageUrl(qrApiUrl);
+                setQrGenerated(true);
+                toast.success('QR code généré avec succès !');
             } else {
-                throw new Error('Erreur génération QR code')
+                throw new Error('Erreur génération QR code');
             }
         } catch (error) {
-            console.error('Erreur:', error)
-            toast.error('Erreur lors de la génération')
+            console.error('Erreur:', error);
+            toast.error('Erreur lors de la génération');
         } finally {
-            setGenerating(false)
+            setGenerating(false);
         }
-    }
+    };
 
     const resetQRGenerator = () => {
-        setQrGenerated(false)
-        setQrAmount('')
-        setQrDescription('')
-        setQrImageUrl('')
-        setPaymentLink('')
-    }
+        setQrGenerated(false);
+        setQrAmount('');
+        setQrDescription('');
+        setQrImageUrl('');
+        setPaymentLink('');
+    };
 
     const copyToClipboard = (text) => {
-        if (!text) return
-        navigator.clipboard.writeText(text)
-        setCopied(true)
-        toast.success('Lien copié !')
-        setTimeout(() => setCopied(false), 2000)
-    }
+        if (!text) return;
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        toast.success('Lien copié !');
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     const shareViaWhatsApp = () => {
-        if (!paymentLink) return
-        const message = `💰 *Demande de paiement AlkherPay*\n\nCliquez sur ce lien pour me payer :\n${paymentLink}`
-        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')
-    }
+        if (!paymentLink) return;
+        const message = `💰 *Demande de paiement AlkherPay*\n\nCliquez sur ce lien pour me payer :\n${paymentLink}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    };
 
     const downloadQRCode = () => {
         if (qrImageUrl) {
-            const link = document.createElement('a')
-            link.download = `alkherpay-payment-${user?.phone}.png`
-            link.href = qrImageUrl
-            link.click()
-            toast.success('QR code téléchargé')
+            const link = document.createElement('a');
+            link.download = `alkherpay-payment-${user?.phone}.png`;
+            link.href = qrImageUrl;
+            link.click();
+            toast.success('QR code téléchargé');
         }
-    }
+    };
 
     const formatAmount = (amount) => {
-        if (amount === null || amount === undefined) return '--- FCFA'
-        return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA'
-    }
+        if (amount === null || amount === undefined) return '--- FCFA';
+        return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+    };
 
     const isActiveLink = (path) => {
-        if (path === '/admin') return location.pathname.startsWith('/admin')
-        return location.pathname === path
-    }
+        if (path === '/admin') return location.pathname.startsWith('/admin');
+        return location.pathname === path;
+    };
 
-    // Items pour la navigation mobile (premiers 5)
-    const mobileNavItems = filteredNavItems.slice(0, 5)
+    const mobileNavItems = filteredNavItems.slice(0, 5);
 
     // ============================================
     // RENDU
     // ============================================
     return (
         <div className={`min-h-screen flex flex-col ${isDark ? 'dark' : 'light'}`}>
+
+            {/* ✅ NOUVEAU : Bannière de notification */}
+            {showNotification && notification && (
+                <div className="fixed top-20 right-4 z-[60] max-w-sm animate-slide-down">
+                    <div className={`rounded-xl shadow-2xl p-4 border-l-4 ${
+                        notification.type === 'success' ? 'bg-green-500/95 border-green-700' :
+                        notification.type === 'error' ? 'bg-red-500/95 border-red-700' :
+                        notification.type === 'warning' ? 'bg-yellow-500/95 border-yellow-700' :
+                        'bg-blue-500/95 border-blue-700'
+                    } backdrop-blur-sm`}>
+                        <div className="flex items-start gap-3">
+                            <div className="text-white text-2xl">
+                                {notification.type === 'success' ? '✅' :
+                                 notification.type === 'error' ? '❌' :
+                                 notification.type === 'warning' ? '⚠️' : '🔔'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="font-bold text-white text-sm truncate">
+                                    {notification.title || 'Notification'}
+                                </p>
+                                <p className="text-white/90 text-xs mt-1">
+                                    {notification.message}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setShowNotification(false)}
+                                className="text-white/70 hover:text-white"
+                            >
+                                <FaTimes size={14} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* HEADER */}
             <header className={`sticky top-0 z-40 border-b ${isDark ? 'bg-blue-900/80 border-white/10' : 'bg-white/90 border-gray-200'} backdrop-blur-md`}>
                 <div className="container mx-auto px-4 py-3">
@@ -402,6 +473,8 @@ function Layout({ user, children, socket }) {
                             )}
 
                             <ThemeToggle />
+
+                            {/* ✅ Notification Manager avec badge */}
                             <NotificationManager user={user} socket={socket} />
 
                             <button
@@ -470,7 +543,7 @@ function Layout({ user, children, socket }) {
                         )}
                     </div>
 
-                    {/* Navigation items avec SCROLL */}
+                    {/* Navigation items */}
                     <div className="flex-1 overflow-y-auto space-y-1 pr-1">
                         {allNavItems.map((item) => (
                             <Link
@@ -519,12 +592,10 @@ function Layout({ user, children, socket }) {
 
             {/* Espace pour la sidebar desktop */}
             <div className="hidden md:block md:ml-64">
-                {/* Main Content */}
                 <main className="flex-1 container mx-auto px-4 py-6 pb-24 md:pb-6">
                     {children}
                 </main>
 
-                {/* Footer */}
                 <footer className={`mt-auto border-t ${isDark ? 'border-white/10 bg-blue-900/30' : 'border-gray-200 bg-gray-50'} py-6`}>
                     <div className="container mx-auto px-4">
                         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -566,7 +637,7 @@ function Layout({ user, children, socket }) {
                         </div>
 
                         <div className={`mt-4 pt-4 text-center text-xs ${isDark ? 'text-white/30' : 'text-gray-400'} border-t ${isDark ? 'border-white/5' : 'border-gray-200'}`}>
-                            <p>Service client: 62 78 73 07 |supportalkher@gmail.com</p>
+                            <p>Service client: 62 78 73 07 | supportalkher@gmail.com</p>
                         </div>
                     </div>
                 </footer>
@@ -818,7 +889,7 @@ function Layout({ user, children, socket }) {
                 </div>
             )}
         </div>
-    )
+    );
 }
 
-export default Layout
+export default Layout;

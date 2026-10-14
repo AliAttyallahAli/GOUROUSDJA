@@ -4,7 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { FaBell, FaMoneyBillWave, FaExchangeAlt, FaExclamationTriangle } from 'react-icons/fa';
 import Layout from '../components/Layout';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const CompanyNotificationsPage = ({ user, socket }) => {
   const [notifications, setNotifications] = useState([]);

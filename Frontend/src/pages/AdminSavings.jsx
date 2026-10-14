@@ -10,7 +10,7 @@ import {
     FaChartLine, FaBell, FaWallet, FaLock, FaUnlock,
     FaPercentage, FaList, FaDownload, FaInfoCircle
 } from 'react-icons/fa';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const AdminSavings = ({ user, socket }) => {
     const [loading, setLoading] = useState(true);

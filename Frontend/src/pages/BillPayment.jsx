@@ -11,7 +11,7 @@ import {
   FaEnvelope, FaArrowLeft, FaBuilding, FaWallet, 
   FaPhoneAlt, FaUserCheck, FaTimesCircle
 } from 'react-icons/fa';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const BillPayment = ({ user, socket }) => {
   const navigate = useNavigate();

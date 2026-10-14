@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa'
 import { useTheme } from '../context/ThemeContext'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 
 function NotificationManager({ user, socket }) {

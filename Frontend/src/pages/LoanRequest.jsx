@@ -11,7 +11,7 @@ import {
     FaCalendarAlt, FaPercent, FaClock, FaFileContract,
     FaShieldAlt, FaWallet, FaHistory, FaEye
 } from 'react-icons/fa';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const LoanRequest = ({ user, socket }) => {
     const navigate = useNavigate();

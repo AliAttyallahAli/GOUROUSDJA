@@ -6,7 +6,7 @@ import {
     FaVolumeUp, FaVolumeMute, FaUser, FaTimes, FaSpinner,
     FaPhoneAlt
 } from 'react-icons/fa';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const VoiceCall = ({ socket, user, onClose }) => {
     const [callState, setCallState] = useState('idle'); // idle, calling, incoming, connected, ended

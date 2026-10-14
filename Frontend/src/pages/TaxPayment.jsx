@@ -10,7 +10,7 @@ import {
     FaUniversity, FaInfoCircle, FaWallet
 } from 'react-icons/fa';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const taxTypes = [
     { id: 1, name: 'Taxe Commerçante', label: 'Taxe Commerçante', default_amount: 25000, description: 'Pour les commerçants et boutiques' },

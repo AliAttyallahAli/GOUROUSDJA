@@ -8,7 +8,7 @@ import {
     FaTag, FaEye, FaChartLine, FaWallet, FaSync
 } from 'react-icons/fa';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const extractArray = (data, ...keys) => {
     if (Array.isArray(data)) return data;

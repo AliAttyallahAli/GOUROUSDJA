@@ -9,7 +9,7 @@ import {
     FaHistory, FaBox, FaCheckCircle
 } from 'react-icons/fa';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 function TokenDetail({ user }) {
     const navigate = useNavigate();
