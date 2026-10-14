@@ -336,7 +336,7 @@ function Profile({ user }) {
 
         console.log('📝 Envoi niveau 2 avec tous les champs:', payload)
 
-        const response = await axios.post('/api/kyc/submit-level-2', payload, {
+        const response = await axios.post('/kyc/submit-level-2', payload, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -380,7 +380,7 @@ function Profile({ user }) {
         formDataKyc.append('proofOfAddress', selectedFiles.proofOfAddress)
       }
       
-      await axios.post('/api/kyc/submit', formDataKyc, {
+      await axios.post('/kyc/submit', formDataKyc, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

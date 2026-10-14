@@ -92,7 +92,7 @@ function CreateAgent({ user }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post('/api/admin/agents', 
+      const response = await axios.post('/admin/agents', 
         {
           phone: formData.phone,
           fullname: formData.fullname,

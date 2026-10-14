@@ -19,7 +19,7 @@ const CompanyNotificationsPage = ({ user, socket }) => {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-       const response = await  axios.get(`/api/company/notifications?limit=100`, {
+       const response = await  axios.get(`${API_URL}/api/company/notifications?limit=100`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(response.data.notifications || []);
@@ -33,7 +33,7 @@ const CompanyNotificationsPage = ({ user, socket }) => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-       const response = await  axios.get(`/api/company/notifications/stats`, {
+       const response = await  axios.get(`${API_URL}/api/company/notifications/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setStats(response.data.stats || {});
@@ -45,7 +45,7 @@ const CompanyNotificationsPage = ({ user, socket }) => {
   const markAsRead = async (id) => {
     try {
       const token = localStorage.getItem('accessToken');
-      await axios.put(`/api/company/notifications/${id}/read`, {}, {
+      await axios.put(`${API_URL}/api/company/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchNotifications();

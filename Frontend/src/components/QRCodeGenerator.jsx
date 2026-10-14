@@ -4,6 +4,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { FaQrcode, FaDownload, FaCopy, FaShare, FaWhatsapp, FaEnvelope, FaTimes, FaMoneyBillWave, FaSpinner } from 'react-icons/fa';
 import QRCode from 'qrcode.react';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 
 function QRCodeGenerator({ user, onClose }) {
     const [amount, setAmount] = useState('');
@@ -24,7 +26,7 @@ function QRCodeGenerator({ user, onClose }) {
         setLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-             const response = await axios.get(`/api/qr/generate-dynamic?amount=${amountNum || ''}`, {
+             const response = await axios.get(`${API_URL}/api/qr/generate-dynamic?amount=${amountNum || ''}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             

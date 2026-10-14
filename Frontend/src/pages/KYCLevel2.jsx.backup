@@ -127,7 +127,7 @@ const KYCLevel2 = ({ user, socket }) => {
             if (files.businessLicense) formDataToSend.append('businessLicense', files.businessLicense);
             if (files.taxIdentification) formDataToSend.append('taxIdentification', files.taxIdentification);
 
-            const response = await axios.post('/api/kyc/submit-level-2', formDataToSend, {
+            const response = await axios.post('/kyc/submit-level-2', formDataToSend, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'

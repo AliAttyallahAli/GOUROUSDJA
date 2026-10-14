@@ -34,7 +34,7 @@ function PinSettings({ user }) {
     setLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post('/api/user/request-pin-reset', {}, {
+      await axios.post('/user/request-pin-reset', {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setRequestSent(true)

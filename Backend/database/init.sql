@@ -250,7 +250,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
 CREATE TABLE IF NOT EXISTS kyc_requests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'verified', 'rejected', 'cancelled')),    fullname TEXT NOT NULL,
+    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'verified', 'rejected', 'cancelled')), fullname TEXT NOT NULL,
     birth_date TEXT,
     birth_place TEXT,
     nationality TEXT DEFAULT 'Tchadienne',
@@ -279,23 +279,19 @@ CREATE TABLE IF NOT EXISTS kyc_requests (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
 );
-
 -- ============================================
 -- TABLE DES DOCUMENTS KYC
 -- ============================================
 CREATE TABLE IF NOT EXISTS kyc_documents (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     kyc_request_id INTEGER NOT NULL,
-    user_id INTEGER,
+    user_id INTEGER NOT NULL,
     document_type TEXT NOT NULL,
     filename TEXT NOT NULL,
     file_path TEXT NOT NULL,
     file_size INTEGER,
     mime_type TEXT,
-    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (kyc_request_id) REFERENCES kyc_requests(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-
+    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
@@ -312,7 +308,6 @@ CREATE TABLE IF NOT EXISTS kyc_limits (
     withdrawal_limit INTEGER DEFAULT 100000,
     description TEXT
 );
-
 -- ============================================
 -- TABLE DES CANDIDATURES AGENTS
 -- ============================================
@@ -975,7 +970,8 @@ CREATE TABLE IF NOT EXISTS tokens (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     creator_id INTEGER NOT NULL UNIQUE,
     name TEXT NOT NULL,
-    symbol TEXT NOT NULL,
+    symbol TEXT NOT NULL,       
+    company_id INTEGER,
     description TEXT,
     logo TEXT,
     category TEXT DEFAULT 'autre',
@@ -986,6 +982,7 @@ CREATE TABLE IF NOT EXISTS tokens (
     price_per_part INTEGER NOT NULL,
     initial_valuation INTEGER NOT NULL,
     current_valuation INTEGER,
+    current_price INTEGER,
     creation_fee INTEGER DEFAULT 0,
     currency TEXT DEFAULT 'XAF',
     status TEXT DEFAULT 'active',
@@ -1050,6 +1047,18 @@ CREATE TABLE IF NOT EXISTS token_transactions (
     FOREIGN KEY (buyer_id) REFERENCES users(id),
     FOREIGN KEY (seller_id) REFERENCES users(id)
 );
+CREATE TABLE IF NOT EXISTS user_tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token_id INTEGER NOT NULL,
+    quantity INTEGER DEFAULT 0,
+    average_buy_price INTEGER DEFAULT 0,
+    total_invested INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (token_id) REFERENCES tokens(id)
+);
 
 -- ============================================
 -- INDEX
@@ -1061,6 +1070,7 @@ CREATE INDEX IF NOT EXISTS idx_holdings_token ON token_holdings(token_id);
 CREATE INDEX IF NOT EXISTS idx_orders_token ON token_sell_orders(token_id);
 CREATE INDEX IF NOT EXISTS idx_orders_seller ON token_sell_orders(seller_id);
 CREATE INDEX IF NOT EXISTS idx_tx_token ON token_transactions(token_id);
+CREATE INDEX IF NOT EXISTS idx_user_tokens_user ON user_tokens(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_pin_resets_user ON card_pin_resets(user_id);
 CREATE INDEX IF NOT EXISTS idx_pin_resets_status ON card_pin_resets(status);

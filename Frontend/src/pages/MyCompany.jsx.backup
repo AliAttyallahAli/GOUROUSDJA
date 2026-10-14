@@ -268,7 +268,7 @@ const MyCompany = ({ user, socket }) => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.post('/api/investment/notify-investors', notificationForm, {
+      const response = await axios.post('/investment/notify-investors', notificationForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

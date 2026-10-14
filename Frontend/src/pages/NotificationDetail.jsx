@@ -33,8 +33,8 @@ function NotificationDetail({ user }) {
   const fetchNotification = async () => {
     setLoading(true)
     try {
-      const token = localStorage.getItem('accessToken')
-       const response = await axios.get(`/api/notifications/${id}`, {
+      const token = localStorage.getItem('accessToken');
+       const response = await axios.get(`${API_URL}/api/notifications/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotification(response.data)
@@ -57,8 +57,8 @@ function NotificationDetail({ user }) {
 
   const markAsRead = async () => {
     try {
-      const token = localStorage.getItem('accessToken')
-      await axios.put(`/api/notifications/${id}/read`, {}, {
+      const token = localStorage.getItem('accessToken');
+      await axios.put(`${API_URL}/api/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotification(prev => ({ ...prev, is_read: true }))
@@ -70,8 +70,8 @@ function NotificationDetail({ user }) {
 
   const confirmDelete = async () => {
     try {
-      const token = localStorage.getItem('accessToken')
-      await axios.delete(`/api/notifications/${id}`, {
+      const token = localStorage.getItem('accessToken');
+      await axios.delete(`${API_URL}/api/notifications/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       toast.success('Notification supprimée')

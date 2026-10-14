@@ -19,6 +19,9 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar
 } from 'recharts';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+
 const MyCompany = ({ user, socket }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -81,14 +84,14 @@ const MyCompany = ({ user, socket }) => {
   const fetchMyCompany = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-       const response = await  axios.get(`/api/investment/my-company`, {
+      const response = await axios.get(`${API_URL}/api/investment/my-company`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       console.log('📋 Données entreprise:', response.data);
 
       const data = response.data.data || response.data;
-      
+
       if (data && data.id) {
         setCompany(data);
         setEditForm({
@@ -107,7 +110,7 @@ const MyCompany = ({ user, socket }) => {
         const collected = data.collected_amount || data.collectedAmount || 0;
         const goal = data.funding_goal || data.fundingGoal || 0;
         const progress = goal > 0 ? (collected / goal) * 100 : 0;
-        
+
         setStats(prev => ({
           ...prev,
           totalInvested: collected,
@@ -139,11 +142,13 @@ const MyCompany = ({ user, socket }) => {
   const fetchInvestors = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-       const response = await  axios.get(`/api/investment/investors`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      const data = response.data.data || [];
+      const response = await axios.get(
+        `${API_URL}/api/investment/investors`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+      const data = response.data.investors || [];
       setInvestors(data);
       console.log('✅ Investisseurs:', data);
     } catch (error) {
@@ -156,10 +161,10 @@ const MyCompany = ({ user, socket }) => {
   const fetchHistory = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-       const response = await  axios.get(`/api/investment/history`, {
+      const response = await axios.get(`${API_URL}/api/investment/history`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       const data = response.data.data || [];
       setHistory(data);
       console.log('✅ Historique:', data);
@@ -173,13 +178,13 @@ const MyCompany = ({ user, socket }) => {
   const fetchStatistics = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-       const response = await  axios.get(`/api/investment/company-stats`, {
+      const response = await axios.get(`${API_URL}/api/investment/company-stats`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       if (response.data.data) {
         const { stats: apiStats, daily_stats, distribution: dist } = response.data.data;
-        
+
         setStats(prev => ({
           ...prev,
           totalInvested: apiStats.total_amount || prev.totalInvested,
@@ -213,10 +218,10 @@ const MyCompany = ({ user, socket }) => {
   const handleUpdateCompany = async (e) => {
     e.preventDefault();
     setSaving(true);
-    
+
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.put(` /api/investment/company`, editForm, {
+      const response = await axios.put(`${API_URL}/api/investment/company`, editForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -243,7 +248,7 @@ const MyCompany = ({ user, socket }) => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.delete(` /api/investment/company`, {
+      const response = await axios.delete(`${API_URL}/api/investment/company`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -260,7 +265,7 @@ const MyCompany = ({ user, socket }) => {
   // ✅ Envoyer une notification
   const handleSendNotification = async (e) => {
     e.preventDefault();
-    
+
     if (!notificationForm.title || !notificationForm.message) {
       toast.error('Veuillez remplir tous les champs');
       return;
@@ -268,7 +273,7 @@ const MyCompany = ({ user, socket }) => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.post(` /api/investment/notify-investors`, notificationForm, {
+      const response = await axios.post(`${API_URL}/api/investment/notify-investors`, notificationForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -287,7 +292,7 @@ const MyCompany = ({ user, socket }) => {
   // ✅ Générer le rapport
   const generateReport = () => {
     toast.success('📊 Génération du rapport en cours...');
-    
+
     const reportContent = `
 ========================================
 RAPPORT D'ENTREPRISE
@@ -319,7 +324,7 @@ Investissement min: ${formatAmount(stats.minInvestment)}
 DÉTAIL DES INVESTISSEURS
 ------------------------
 ${investors.map((inv, i) => `
-${i+1}. ${inv.investor_name || 'Anonyme'}
+${i + 1}. ${inv.investor_name || 'Anonyme'}
    Téléphone: ${inv.investor_phone || 'N/A'}
    Montant: ${formatAmount(inv.amount)}
    Actions: ${inv.shares || 0}
@@ -330,7 +335,7 @@ ${i+1}. ${inv.investor_name || 'Anonyme'}
 Rapport généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}
 ========================================
     `;
-    
+
     const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -340,7 +345,7 @@ Rapport généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().t
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     toast.success('✅ Rapport téléchargé !');
   };
 
@@ -353,8 +358,8 @@ Investissez dès maintenant et participez à notre croissance : ${shareUrl}
 
 Objectif: ${formatAmount(company.funding_goal)}
 Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.toFixed(0)}%)`;
-    
-    switch(platform) {
+
+    switch (platform) {
       case 'copy':
         if (navigator.clipboard) {
           navigator.clipboard.writeText(shareUrl);
@@ -387,7 +392,7 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
       toast.error('Aucun investisseur à exporter');
       return;
     }
-    
+
     const headers = ['ID', 'Nom', 'Téléphone', 'Email', 'KYC', 'Montant', 'Actions', 'Prix/Action', 'Date', 'Statut'];
     const rows = investors.map(inv => [
       inv.id || '',
@@ -401,12 +406,12 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
       formatDate(inv.created_at),
       inv.status || 'active'
     ]);
-    
+
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.join(','))
     ].join('\n');
-    
+
     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -416,7 +421,7 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast.success(`📥 ${investors.length} investisseurs exportés !`);
   };
 
@@ -444,7 +449,7 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
   };
 
   const getStatusBadge = (status) => {
-    switch(status) {
+    switch (status) {
       case 'completed':
       case 'active':
       case 'verified':
@@ -499,11 +504,11 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
             <FaArrowLeft className="text-lg" />
             <span>Retour</span>
           </button>
-          
+
           <div className="text-center py-12 bg-white/5 rounded-xl">
             <FaBuilding className="text-gray-300 text-5xl mx-auto mb-3" />
             <p className="text-gray-500 text-lg">Vous n'avez pas encore d'entreprise</p>
-            <button 
+            <button
               onClick={() => navigate('/investments')}
               className="mt-4 bg-yellow-500 text-black px-6 py-2 rounded-lg hover:bg-yellow-400"
             >
@@ -526,12 +531,12 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
             <FaArrowLeft className="text-lg" />
             <span>Retour</span>
           </button>
-          
+
           <div className="text-center py-12 bg-white/5 rounded-xl">
             <FaShieldAlt className="text-red-400 text-5xl mx-auto mb-3" />
             <p className="text-gray-500 text-lg">Accès non autorisé</p>
             <p className="text-gray-400 text-sm">Vous n'êtes pas le propriétaire de cette entreprise</p>
-            <button 
+            <button
               onClick={() => navigate('/investments')}
               className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
             >
@@ -557,7 +562,7 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
             <FaArrowLeft className="text-lg" />
             <span>Retour</span>
           </button>
-          
+
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setShowNotificationModal(true)}
@@ -621,17 +626,15 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                activeTab === tab.id
+              className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${activeTab === tab.id
                   ? 'bg-blue-700 text-white shadow-md'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+                }`}
             >
               <tab.icon /> {tab.label}
               {tab.count > 0 && (
-                <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
-                  activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-blue-500 text-white'
-                }`}>
+                <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-blue-500 text-white'
+                  }`}>
                   {tab.count}
                 </span>
               )}
@@ -690,7 +693,7 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
                 <span className="text-gray-500 font-bold">{stats.fundingProgress.toFixed(1)}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-4">
-                <div 
+                <div
                   className={`h-4 rounded-full transition-all duration-500 ${getProgressColor(stats.fundingProgress)}`}
                   style={{ width: `${Math.min(stats.fundingProgress, 100)}%` }}
                 />
@@ -740,26 +743,26 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
                       <XAxis dataKey="date" />
                       <YAxis yAxisId="left" />
                       <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip 
+                      <Tooltip
                         formatter={(value, name) => {
                           if (name === 'montant') return [formatAmount(value), 'Montant'];
                           return [value, 'Investissements'];
                         }}
                       />
                       <Legend />
-                      <Line 
+                      <Line
                         yAxisId="left"
-                        type="monotone" 
-                        dataKey="investissements" 
-                        stroke="#3B82F9" 
+                        type="monotone"
+                        dataKey="investissements"
+                        stroke="#3B82F9"
                         strokeWidth={2}
                         name="Investissements"
                       />
-                      <Line 
+                      <Line
                         yAxisId="right"
-                        type="monotone" 
-                        dataKey="montant" 
-                        stroke="#10C981" 
+                        type="monotone"
+                        dataKey="montant"
+                        stroke="#10C981"
                         strokeWidth={2}
                         name="Montant"
                       />
@@ -856,13 +859,13 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
                 </span>
               </h3>
               <div className="flex gap-2">
-                <button 
+                <button
                   onClick={exportInvestors}
                   className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-1"
                 >
                   <FaDownload /> CSV
                 </button>
-                <button 
+                <button
                   onClick={fetchInvestors}
                   className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-200 transition-colors"
                 >
@@ -923,8 +926,8 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
                     {investors.map((investor, index) => {
                       const status = getStatusBadge(investor.status || 'active');
                       return (
-                        <tr 
-                          key={investor.id || index} 
+                        <tr
+                          key={investor.id || index}
                           className="hover:bg-gray-500 transition-colors cursor-pointer"
                           onClick={() => {
                             setSelectedInvestor(investor);
@@ -949,11 +952,10 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`text-xs px-2 py-1 rounded-full ${
-                              investor.kyc_level >= 2 ? 'bg-purple-100 text-purple-700' :
-                              investor.kyc_level >= 1 ? 'bg-green-100 text-green-700' :
-                              'bg-gray-100 text-gray-700'
-                            }`}>
+                            <span className={`text-xs px-2 py-1 rounded-full ${investor.kyc_level >= 2 ? 'bg-purple-100 text-purple-700' :
+                                investor.kyc_level >= 1 ? 'bg-green-100 text-green-700' :
+                                  'bg-gray-100 text-gray-700'
+                              }`}>
                               Niveau {investor.kyc_level || 0}
                             </span>
                           </td>
@@ -1022,14 +1024,13 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
                   {history.map((item, index) => (
                     <div key={item.id || index} className="relative flex items-start gap-4 pl-12">
                       {/* Point sur la ligne */}
-                      <div className={`absolute left-3 w-4 h-4 rounded-full border-2 border-white ${
-                        item.color === 'blue' ? 'bg-blue-500' :
-                        item.color === 'green' ? 'bg-green-500' :
-                        item.color === 'yellow' ? 'bg-yellow-500' :
-                        item.color === 'red' ? 'bg-red-500' :
-                        item.color === 'purple' ? 'bg-purple-500' :
-                        'bg-gray-500'
-                      }`}></div>
+                      <div className={`absolute left-3 w-4 h-4 rounded-full border-2 border-white ${item.color === 'blue' ? 'bg-blue-500' :
+                          item.color === 'green' ? 'bg-green-500' :
+                            item.color === 'yellow' ? 'bg-yellow-500' :
+                              item.color === 'red' ? 'bg-red-500' :
+                                item.color === 'purple' ? 'bg-purple-500' :
+                                  'bg-gray-500'
+                        }`}></div>
 
                       <div className="flex-1 bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
                         <div className="flex justify-between items-start flex-wrap gap-2">
@@ -1150,19 +1151,19 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3">
-              <button 
+              <button
                 onClick={generateReport}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
               >
                 <FaFilePdf /> Générer le rapport
               </button>
-              <button 
+              <button
                 onClick={() => setShowShareModal(true)}
                 className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
               >
                 <FaShare /> Partager
               </button>
-              <button 
+              <button
                 onClick={handleDeleteCompany}
                 className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
               >
@@ -1192,11 +1193,10 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
                   <h4 className="text-xl font-bold text-gray-800">
                     {selectedInvestor.investor_name || 'Anonyme'}
                   </h4>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    selectedInvestor.kyc_level >= 2 ? 'bg-purple-100 text-purple-700' :
-                    selectedInvestor.kyc_level >= 1 ? 'bg-green-100 text-green-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
+                  <span className={`text-xs px-2 py-1 rounded-full ${selectedInvestor.kyc_level >= 2 ? 'bg-purple-100 text-purple-700' :
+                      selectedInvestor.kyc_level >= 1 ? 'bg-green-100 text-green-700' :
+                        'bg-gray-100 text-gray-700'
+                    }`}>
                     KYC Niveau {selectedInvestor.kyc_level || 0}
                   </span>
                 </div>
@@ -1357,7 +1357,7 @@ Déjà collecté: ${formatAmount(stats.totalInvested)} (${stats.fundingProgress.
                 <img src={qrCodeUrl} alt="QR Code" className="w-40 h-40 mx-auto mb-4 border rounded-lg p-2" />
               )}
               <p className="text-sm text-gray-500 mb-4">Scannez ce QR code ou partagez le lien</p>
-              
+
               <div className="flex justify-center gap-3 mb-4 flex-wrap">
                 <button
                   onClick={() => shareCompany('whatsapp')}

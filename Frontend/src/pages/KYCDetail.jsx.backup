@@ -51,7 +51,7 @@ function KYCDetail({ user }) {
     setProcessing(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post(`/api/admin/kyc/verify/${id}`, 
+      const response = await axios.post(`${token}/api/admin/kyc/verify/${id}`, 
         { action: 'approve', level: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -71,7 +71,7 @@ function KYCDetail({ user }) {
     setProcessing(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`/api/admin/kyc/verify/${id}`, 
+      await axios.post(`${token}/api/admin/kyc/verify/${id}`, 
         { action: 'reject', rejection_reason: reason },
         { headers: { Authorization: `Bearer ${token}` } }
       )

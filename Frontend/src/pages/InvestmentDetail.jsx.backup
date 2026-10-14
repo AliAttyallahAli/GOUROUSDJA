@@ -124,7 +124,7 @@ const InvestmentDetail = ({ user, socket }) => {
     setSubmitting(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.post('/api/investment/invest', {
+      const response = await axios.post('/investment/invest', {
         company_id: company.id,
         amount: amount,
         shares: sharesCount

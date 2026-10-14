@@ -36,7 +36,8 @@ const AdminBillCompanies = ({ user }) => {
   const fetchCompanies = async () => {
     setLoading(true);
     try {
-       const response = await  axios.get(`/api/service-companies`);
+       const response = await  axios.get(
+        `${API_URL}/api/service-companies`);
       setCompanies(response.data || []);
     } catch (error) {
       console.error('Erreur chargement:', error);
@@ -58,12 +59,13 @@ const AdminBillCompanies = ({ user }) => {
       const token = localStorage.getItem('accessToken');
       
       if (editingCompany) {
-        await axios.put(`/api/admin/service-companies/${editingCompany.id}`, formData, {
+        await axios.put(
+          `${API_URL}/api/admin/service-companies/${editingCompany.id}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Entreprise modifiée avec succès');
       } else {
-        const response = await axios.post(` /api/admin/service-companies`, formData, {
+        const response = await axios.post(`${API_URL}/api/admin/service-companies`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {
@@ -86,7 +88,8 @@ const AdminBillCompanies = ({ user }) => {
     if (window.confirm(`Supprimer l'entreprise "${name}" ?`)) {
       try {
         const token = localStorage.getItem('accessToken');
-        await axios.delete(`/api/admin/service-companies/${id}`, {
+        await axios.delete(
+          `${API_URL}/api/admin/service-companies/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Entreprise supprimée');

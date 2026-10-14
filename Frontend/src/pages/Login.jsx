@@ -35,7 +35,7 @@ function Login({ setUser }) {
     const verifyToken = async (token, savedUser) => {
         try {
             // ✅ API_URL ajouté
-             const response = await  axios.get(`/api/auth/verify`, {
+             const response = await  axios.get(`${API_URL}/api/auth/verify`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
 
@@ -59,7 +59,7 @@ function Login({ setUser }) {
 
         try {
             // ✅ API_URL ajouté
-            let endpoint = ` /api/auth/login`
+            let endpoint = `${API_URL}/api/auth/login`
             let payload = { phone }
 
             if (loginMode === 'password') {
@@ -75,7 +75,7 @@ function Login({ setUser }) {
                     setLoading(false)
                     return
                 }
-                endpoint = ` /api/auth/login-key`
+                endpoint = `${API_URL}/api/auth/login-key`
                 payload.privateKey = privateKey
             }
 
@@ -112,7 +112,7 @@ function Login({ setUser }) {
         setSendingRequest(true)
         try {
             // ✅ API_URL ajouté
-            await axios.post(` /api/auth/forgot-password`, { phone: forgotPhone })
+            await axios.post(`${API_URL}/api/auth/forgot-password`, { phone: forgotPhone })
             setForgotSuccess(true)
             setTimeout(() => {
                 setShowForgotModal(false)

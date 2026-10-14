@@ -97,7 +97,7 @@ const Savings = ({ user, socket }) => {
         
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post('/api/savings', createForm, {
+            const response = await axios.post('/savings', createForm, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -138,7 +138,7 @@ const Savings = ({ user, socket }) => {
         setSubmitting(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post(`/api/savings/${selectedSavings.id}/deposit`, 
+            const response = await axios.post(`${token}/api/savings/${selectedSavings.id}/deposit`, 
                 { amount }, 
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -174,7 +174,7 @@ const Savings = ({ user, socket }) => {
         setSubmitting(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post(`/api/savings/${selectedSavings.id}/withdraw-request`, 
+            const response = await axios.post(`${token}/api/savings/${selectedSavings.id}/withdraw-request`, 
                 { amount, reason: withdrawReason }, 
                 { headers: { Authorization: `Bearer ${token}` } }
             );

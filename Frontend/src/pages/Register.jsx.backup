@@ -158,7 +158,7 @@ function Register() {
         referral_code: formData.referral_code || null
       }
       
-      const response = await axios.post('/api/auth/register', submitData)
+      const response = await axios.post('/auth/register', submitData)
       
       setPrivateKey(response.data.private_key)
       

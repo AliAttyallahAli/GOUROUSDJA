@@ -27,8 +27,8 @@ function KYCDetail({ user }) {
   const fetchKycRequest = async () => {
     setLoading(true)
     try {
-      const token = localStorage.getItem('accessToken')
-       const response = await axios.get(`/api/admin/kyc/requests/${id}`, {
+      const token = localStorage.getItem('accessToken');
+       const response = await axios.get(`${API_URL}/api/admin/kyc/requests/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setKycRequest(response.data)
@@ -50,8 +50,8 @@ function KYCDetail({ user }) {
     
     setProcessing(true)
     try {
-      const token = localStorage.getItem('accessToken')
-      const response = await axios.post(`/api/admin/kyc/verify/${id}`, 
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.post(`${token}/api/admin/kyc/verify/${id}`, 
         { action: 'approve', level: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -71,7 +71,7 @@ function KYCDetail({ user }) {
     setProcessing(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`/api/admin/kyc/verify/${id}`, 
+      await axios.post(`${token}/api/admin/kyc/verify/${id}`, 
         { action: 'reject', rejection_reason: reason },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -87,7 +87,7 @@ function KYCDetail({ user }) {
   const downloadDocument = async (documentId, filename) => {
     try {
       const token = localStorage.getItem('accessToken')
-       const response = await axios.get(`/api/kyc/download/${documentId}`, {
+       const response = await axios.get(`${API_URL}/api/kyc/download/${documentId}`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       })

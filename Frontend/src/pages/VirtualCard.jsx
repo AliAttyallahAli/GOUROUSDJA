@@ -85,7 +85,7 @@ function VirtualCard({ user }) {
     const fetchCard = async () => {
         setLoading(true);
         try {
-             const response = await  axios.get(`/api/cards/my-card`, getAuthHeaders());
+             const response = await  axios.get(`${API_URL}/api/cards/my-card`, getAuthHeaders());
             setCard(response.data.card || null);
         } catch (error) {
             console.error('❌ Erreur:', error);
@@ -96,7 +96,7 @@ function VirtualCard({ user }) {
 
     const fetchTransactions = async () => {
         try {
-             const response = await  axios.get(`/api/cards/my-transactions`, getAuthHeaders());
+             const response = await  axios.get(`${API_URL}/api/cards/my-transactions`, getAuthHeaders());
             setTransactions(extractArray(response.data, 'transactions'));
         } catch (error) {
             console.error('❌ Erreur:', error);
@@ -106,7 +106,7 @@ function VirtualCard({ user }) {
     const fetchResetStatus = async () => {
         setLoadingResetStatus(true);
         try {
-             const response = await  axios.get(`/api/cards/pin-reset-status`, getAuthHeaders());
+             const response = await  axios.get(`${API_URL}/api/cards/pin-reset-status`, getAuthHeaders());
             setResetRequest(response.data.request || null);
             console.log('📋 Statut reset:', response.data.request);
         } catch (error) {
@@ -121,7 +121,7 @@ function VirtualCard({ user }) {
         setSubmitting(true);
         try {
             await axios.post(
-                ` /api/cards/request`,
+                `${API_URL}/api/cards/request`,
                 { card_type: 'classic', reason: requestReason },
                 getAuthHeaders()
             );
@@ -194,7 +194,7 @@ function VirtualCard({ user }) {
         setSettingPin(true);
         try {
             const response = await axios.post(
-                ` /api/cards/set-pin`,
+                `${API_URL}/api/cards/set-pin`,
                 {
                     card_number: card.card_number,
                     new_pin: pinForm.new_pin,
@@ -228,7 +228,7 @@ function VirtualCard({ user }) {
         setSubmittingReset(true);
         try {
             const response = await axios.post(
-                ` /api/cards/request-pin-reset`,
+                `${API_URL}/api/cards/request-pin-reset`,
                 { reason: resetReason },
                 getAuthHeaders()
             );
@@ -297,7 +297,7 @@ function VirtualCard({ user }) {
             const currentBaseUrl = getNetworkBaseUrl();
 
              const response = await axios.get(
-                ` /api/cards/download-pdf?baseUrl=${encodeURIComponent(currentBaseUrl)}`,
+                `${API_URL}/api/cards/download-pdf?baseUrl=${encodeURIComponent(currentBaseUrl)}`,
                 { ...getAuthHeaders(), responseType: 'text' }
             );
 

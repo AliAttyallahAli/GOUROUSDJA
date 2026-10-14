@@ -31,7 +31,7 @@ const io = socketIO(server, {
       'http://localhost:5173',
       'http://localhost:3000',
       'http://192.168.1.199:5173',
-      'http://localhost:5000',
+      '/api',
       'http://Frotend/src/api',
       'https://alkherpay.vercel.app',          // Ton URL Vercel exacte
         /\.vercel\.app$/,                         // Toutes les previews Vercel
@@ -5924,7 +5924,7 @@ app.post('/api/kyc/check-limit', authenticateToken, async (req, res) => {
   const { amount, type } = req.body; // type: 'transfer', 'withdraw'
 
   try {
-    const limitsRes =  ('http://localhost:5000/api/kyc/limits', {
+    const limitsRes =  ('/api/api/kyc/limits', {
       headers: { Authorization: req.headers.authorization }
     });
 
@@ -26433,6 +26433,652 @@ app.post('/api/loans/:id/repay', authenticateToken, async (req, res) => {
     }
 });
 
+// ============================================================
+// SYSTÈME DE TOKENS (TokenMarket)
+// ============================================================
+
+// ------------------------------------------------------------
+// 1. CRÉATION DE LA TABLE
+// ------------------------------------------------------------
+async function createTokensTable() {
+    try {
+        await run(`
+            CREATE TABLE IF NOT EXISTS tokens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                symbol TEXT NOT NULL UNIQUE,
+                description TEXT,
+                logo TEXT,
+                current_price INTEGER DEFAULT 0,
+                total_supply INTEGER DEFAULT 0,
+                available_supply INTEGER DEFAULT 0,
+                company_id INTEGER,
+                is_active INTEGER DEFAULT 1,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        await run(`
+            CREATE TABLE IF NOT EXISTS user_tokens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                token_id INTEGER NOT NULL,
+                quantity INTEGER DEFAULT 0,
+                average_buy_price INTEGER DEFAULT 0,
+                total_invested INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (token_id) REFERENCES tokens(id)
+            )
+        `);
+
+        await run(`
+            CREATE TABLE IF NOT EXISTS token_transactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                token_id INTEGER NOT NULL,
+                type TEXT NOT NULL CHECK(type IN ('buy', 'sell')),
+                quantity INTEGER NOT NULL,
+                price INTEGER NOT NULL,
+                total INTEGER NOT NULL,
+                fee INTEGER DEFAULT 0,
+                status TEXT DEFAULT 'completed',
+                reference TEXT UNIQUE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (token_id) REFERENCES tokens(id)
+            )
+        `);
+
+        await run('CREATE INDEX IF NOT EXISTS idx_user_tokens_user ON user_tokens(user_id)').catch(() => {});
+        await run('CREATE INDEX IF NOT EXISTS idx_user_tokens_token ON user_tokens(token_id)').catch(() => {});
+        await run('CREATE INDEX IF NOT EXISTS idx_token_trans_user ON token_transactions(user_id)').catch(() => {});
+
+        console.log('✅ Tables tokens prêtes');
+    } catch (error) {
+        console.error('❌ Erreur createTokensTable:', error);
+    }
+}
+
+// ------------------------------------------------------------
+// 2. ROUTES TOKENS
+// ------------------------------------------------------------
+
+/**
+ * GET /api/tokens/market
+ * Liste de tous les tokens disponibles
+ */
+app.get('/api/tokens/market', authenticateToken, async (req, res) => {
+    try {
+        const tokens = await query(`
+            SELECT 
+                t.*,
+                c.name as company_name,
+                c.logo as company_logo
+            FROM tokens t
+            LEFT JOIN service_companies c ON t.company_id = c.id
+            WHERE t.is_active = 1
+            ORDER BY t.name ASC
+        `).catch(() => []);
+
+        res.json({
+            success: true,
+            tokens: tokens || [],
+            count: tokens?.length || 0
+        });
+    } catch (error) {
+        console.error('❌ Erreur tokens market:', error);
+        res.status(500).json({ success: false, error: error.message, tokens: [] });
+    }
+});
+
+/**
+ * GET /api/tokens/my-tokens
+ * Tokens détenus par l'utilisateur
+ */
+app.get('/api/tokens/my-tokens', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+
+    console.log('📊 GET /api/tokens/my-tokens - user:', userId);
+
+    try {
+        // Vérifier que la table existe
+        const tableCheck = await query(`
+            SELECT name FROM sqlite_master WHERE type='table' AND name='user_tokens'
+        `).catch(() => []);
+
+        if (tableCheck.length === 0) {
+            console.log('⚠️ Table user_tokens inexistante');
+            return res.json({
+                success: true,
+                tokens: [],
+                total_value: 0,
+                count: 0
+            });
+        }
+
+        const tokens = await query(`
+            SELECT 
+                ut.id,
+                ut.user_id,
+                ut.token_id,
+                ut.quantity,
+                ut.average_buy_price,
+                ut.total_invested,
+                ut.created_at,
+                t.name as token_name,
+                t.symbol as token_symbol,
+                t.logo as token_logo,
+                t.current_price,
+                (ut.quantity * t.current_price) as current_value,
+                ((ut.quantity * t.current_price) - ut.total_invested) as profit_loss
+            FROM user_tokens ut
+            LEFT JOIN tokens t ON ut.token_id = t.id
+            WHERE ut.user_id = ? AND ut.quantity > 0
+            ORDER BY ut.created_at DESC
+        `, [userId]).catch((err) => {
+            console.error('❌ Erreur SQL my-tokens:', err);
+            return [];
+        });
+
+        const totalValue = (tokens || []).reduce((sum, t) => {
+            return sum + (t.quantity * (t.current_price || 0));
+        }, 0);
+
+        console.log(`✅ ${tokens?.length || 0} tokens trouvés pour user ${userId}`);
+
+        res.json({
+            success: true,
+            tokens: tokens || [],
+            total_value: totalValue,
+            count: tokens?.length || 0
+        });
+
+    } catch (error) {
+        console.error('❌ Erreur my-tokens:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            tokens: [],
+            total_value: 0
+        });
+    }
+});
+
+/**
+ * GET /api/tokens/:id
+ * Détails d'un token
+ */
+app.get('/api/tokens/:id', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const token = await get(`
+            SELECT 
+                t.*,
+                c.name as company_name,
+                c.logo as company_logo,
+                c.description as company_description
+            FROM tokens t
+            LEFT JOIN service_companies c ON t.company_id = c.id
+            WHERE t.id = ?
+        `, [id]);
+
+        if (!token) {
+            return res.status(404).json({ success: false, error: 'Token non trouvé' });
+        }
+
+        res.json({ success: true, token });
+    } catch (error) {
+        console.error('❌ Erreur token detail:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * GET /api/tokens/:id/history
+ * Historique des prix d'un token
+ */
+app.get('/api/tokens/:id/history', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const history = await query(`
+            SELECT 
+                price,
+                DATE(created_at) as date,
+                created_at
+            FROM token_transactions
+            WHERE token_id = ?
+            ORDER BY created_at DESC
+            LIMIT 30
+        `, [id]).catch(() => []);
+
+        res.json({
+            success: true,
+            history: history || []
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message, history: [] });
+    }
+});
+
+/**
+ * POST /api/tokens/buy
+ * Acheter des tokens
+ */
+app.post('/api/tokens/buy', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+    const { token_id, quantity } = req.body;
+
+    console.log('💰 Achat token:', { userId, token_id, quantity });
+
+    if (!token_id || !quantity || quantity <= 0) {
+        return res.status(400).json({ success: false, error: 'Token et quantité requis' });
+    }
+
+    try {
+        // Récupérer le token
+        const token = await get('SELECT * FROM tokens WHERE id = ? AND is_active = 1', [token_id]);
+        if (!token) {
+            return res.status(404).json({ success: false, error: 'Token non trouvé' });
+        }
+
+        // Vérifier la disponibilité
+        if (token.available_supply < quantity) {
+            return res.status(400).json({
+                success: false,
+                error: `Stock insuffisant. Disponible: ${token.available_supply}`
+            });
+        }
+
+        // Calculer le coût total
+        const totalCost = token.current_price * quantity;
+        const fee = Math.floor(totalCost * 0.01); // 1% de frais
+        const totalWithFee = totalCost + fee;
+
+        // Vérifier le wallet
+        const wallet = await get('SELECT * FROM wallets WHERE user_id = ?', [userId]);
+        if (!wallet) {
+            return res.status(404).json({ success: false, error: 'Wallet non trouvé' });
+        }
+
+        if (wallet.balance < totalWithFee) {
+            return res.status(400).json({
+                success: false,
+                error: `Solde insuffisant. Requis: ${totalWithFee.toLocaleString()} FCFA, Disponible: ${wallet.balance.toLocaleString()} FCFA`
+            });
+        }
+
+        const reference = `TOKEN-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
+        await run('BEGIN TRANSACTION');
+
+        try {
+            // Débiter le wallet
+            await run(`
+                UPDATE wallets 
+                SET balance = balance - ?, updated_at = CURRENT_TIMESTAMP 
+                WHERE user_id = ?
+            `, [totalWithFee, userId]);
+
+            // Réduire le stock
+            await run(`
+                UPDATE tokens 
+                SET available_supply = available_supply - ?, updated_at = CURRENT_TIMESTAMP 
+                WHERE id = ?
+            `, [quantity, token_id]);
+
+            // Ajouter ou mettre à jour user_tokens
+            const existing = await get(
+                'SELECT * FROM user_tokens WHERE user_id = ? AND token_id = ?',
+                [userId, token_id]
+            );
+
+            if (existing) {
+                const newQuantity = existing.quantity + quantity;
+                const newTotalInvested = existing.total_invested + totalCost;
+                const newAvgPrice = Math.floor(newTotalInvested / newQuantity);
+
+                await run(`
+                    UPDATE user_tokens 
+                    SET quantity = ?, 
+                        total_invested = ?, 
+                        average_buy_price = ?,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                `, [newQuantity, newTotalInvested, newAvgPrice, existing.id]);
+            } else {
+                await run(`
+                    INSERT INTO user_tokens (user_id, token_id, quantity, average_buy_price, total_invested)
+                    VALUES (?, ?, ?, ?, ?)
+                `, [userId, token_id, quantity, token.current_price, totalCost]);
+            }
+
+            // Enregistrer la transaction
+            await run(`
+                INSERT INTO token_transactions (
+                    user_id, token_id, type, quantity, price, total, fee, reference
+                ) VALUES (?, ?, 'buy', ?, ?, ?, ?, ?)
+            `, [userId, token_id, quantity, token.current_price, totalCost, fee, reference]);
+
+            // Notification
+            await run(`
+                INSERT INTO notifications (user_id, title, message, type, created_at)
+                VALUES (?, '💰 Achat de tokens', ?, 'success', CURRENT_TIMESTAMP)
+            `, [
+                userId,
+                `Achat de ${quantity} ${token.symbol} pour ${totalWithFee.toLocaleString()} FCFA`
+            ]).catch(() => {});
+
+            await run('COMMIT');
+
+            console.log('✅ Achat réussi:', reference);
+
+            res.json({
+                success: true,
+                message: 'Achat effectué avec succès',
+                transaction: {
+                    reference,
+                    quantity,
+                    price: token.current_price,
+                    total: totalCost,
+                    fee,
+                    total_paid: totalWithFee,
+                    token_symbol: token.symbol
+                }
+            });
+
+        } catch (dbError) {
+            await run('ROLLBACK');
+            throw dbError;
+        }
+
+    } catch (error) {
+        console.error('❌ Erreur achat token:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * POST /api/tokens/sell
+ * Vendre des tokens
+ */
+app.post('/api/tokens/sell', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+    const { token_id, quantity } = req.body;
+
+    if (!token_id || !quantity || quantity <= 0) {
+        return res.status(400).json({ success: false, error: 'Token et quantité requis' });
+    }
+
+    try {
+        const token = await get('SELECT * FROM tokens WHERE id = ?', [token_id]);
+        if (!token) {
+            return res.status(404).json({ success: false, error: 'Token non trouvé' });
+        }
+
+        const userToken = await get(
+            'SELECT * FROM user_tokens WHERE user_id = ? AND token_id = ?',
+            [userId, token_id]
+        );
+
+        if (!userToken || userToken.quantity < quantity) {
+            return res.status(400).json({
+                success: false,
+                error: `Quantité insuffisante. Vous avez: ${userToken?.quantity || 0}`
+            });
+        }
+
+        const totalRevenue = token.current_price * quantity;
+        const fee = Math.floor(totalRevenue * 0.01);
+        const netRevenue = totalRevenue - fee;
+
+        const reference = `TOKEN-SELL-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
+        await run('BEGIN TRANSACTION');
+
+        try {
+            // Créditer le wallet
+            await run(`
+                UPDATE wallets 
+                SET balance = balance + ?, updated_at = CURRENT_TIMESTAMP 
+                WHERE user_id = ?
+            `, [netRevenue, userId]);
+
+            // Augmenter le stock
+            await run(`
+                UPDATE tokens 
+                SET available_supply = available_supply + ?, updated_at = CURRENT_TIMESTAMP 
+                WHERE id = ?
+            `, [quantity, token_id]);
+
+            // Réduire user_tokens
+            const newQuantity = userToken.quantity - quantity;
+            if (newQuantity === 0) {
+                await run('DELETE FROM user_tokens WHERE id = ?', [userToken.id]);
+            } else {
+                await run(`
+                    UPDATE user_tokens 
+                    SET quantity = ?, updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?
+                `, [newQuantity, userToken.id]);
+            }
+
+            // Enregistrer la transaction
+            await run(`
+                INSERT INTO token_transactions (
+                    user_id, token_id, type, quantity, price, total, fee, reference
+                ) VALUES (?, ?, 'sell', ?, ?, ?, ?, ?)
+            `, [userId, token_id, quantity, token.current_price, totalRevenue, fee, reference]);
+
+            await run(`
+                INSERT INTO notifications (user_id, title, message, type, created_at)
+                VALUES (?, '💵 Vente de tokens', ?, 'success', CURRENT_TIMESTAMP)
+            `, [
+                userId,
+                `Vente de ${quantity} ${token.symbol} pour ${netRevenue.toLocaleString()} FCFA`
+            ]).catch(() => {});
+
+            await run('COMMIT');
+
+            console.log('✅ Vente réussie:', reference);
+
+            res.json({
+                success: true,
+                message: 'Vente effectuée avec succès',
+                transaction: {
+                    reference,
+                    quantity,
+                    price: token.current_price,
+                    total: totalRevenue,
+                    fee,
+                    net_received: netRevenue
+                }
+            });
+
+        } catch (dbError) {
+            await run('ROLLBACK');
+            throw dbError;
+        }
+
+    } catch (error) {
+        console.error('❌ Erreur vente token:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * GET /api/tokens/my-transactions
+ * Historique des transactions de tokens
+ */
+app.get('/api/tokens/my-transactions', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        const transactions = await query(`
+            SELECT 
+                tt.*,
+                t.name as token_name,
+                t.symbol as token_symbol,
+                t.logo as token_logo
+            FROM token_transactions tt
+            LEFT JOIN tokens t ON tt.token_id = t.id
+            WHERE tt.user_id = ?
+            ORDER BY tt.created_at DESC
+            LIMIT 100
+        `, [userId]).catch(() => []);
+
+        res.json({
+            success: true,
+            transactions: transactions || [],
+            count: transactions?.length || 0
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message, transactions: [] });
+    }
+});
+
+/**
+ * POST /api/admin/tokens
+ * Créer un token (admin)
+ */
+app.post('/api/admin/tokens', authenticateToken, requireAdmin, async (req, res) => {
+    const { name, symbol, description, logo, current_price, total_supply, company_id } = req.body;
+
+    if (!name || !symbol) {
+        return res.status(400).json({ success: false, error: 'Nom et symbole requis' });
+    }
+
+    try {
+        const result = await run(`
+            INSERT INTO tokens (
+                name, symbol, description, logo, current_price, 
+                total_supply, available_supply, company_id, is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+        `, [
+            name, symbol, description || '', logo || '🪙',
+            current_price || 1000, total_supply || 1000000,
+            total_supply || 1000000, company_id || null
+        ]);
+
+        res.status(201).json({
+            success: true,
+            message: 'Token créé',
+            token: { id: result.lastID, name, symbol }
+        });
+    } catch (error) {
+        console.error('❌ Erreur création token:', error);
+        if (error.message.includes('UNIQUE')) {
+            return res.status(400).json({ success: false, error: 'Ce symbole existe déjà' });
+        }
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+// ============================================================
+// ROUTES TOKENS - MANQUANTES
+// ============================================================
+
+/**
+ * GET /api/tokens/market
+ * Liste de tous les tokens disponibles
+ */
+app.get('/api/tokens/market', authenticateToken, async (req, res) => {
+    try {
+        const tokens = await query(`
+            SELECT 
+                id, name, symbol, description, logo,
+                current_price, total_supply, available_supply,
+                is_active, created_at
+            FROM tokens
+            WHERE is_active = 1
+            ORDER BY name ASC
+        `).catch(() => []);
+
+        console.log(`🏪 ${tokens?.length || 0} tokens sur le marché`);
+
+        res.json({
+            success: true,
+            tokens: tokens || [],
+            count: tokens?.length || 0
+        });
+    } catch (error) {
+        console.error('❌ Erreur market:', error);
+        res.status(500).json({ success: false, error: error.message, tokens: [] });
+    }
+});
+
+/**
+ * GET /api/tokens/my-transactions
+ * Historique des transactions de tokens de l'utilisateur
+ */
+app.get('/api/tokens/my-transactions', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        // Vérifier si la table existe
+        const tableCheck = await query(`
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name='token_transactions'
+        `).catch(() => []);
+
+        if (tableCheck.length === 0) {
+            return res.json({ success: true, transactions: [], count: 0 });
+        }
+
+        const transactions = await query(`
+            SELECT 
+                tt.*,
+                t.name as token_name,
+                t.symbol as token_symbol,
+                t.logo as token_logo
+            FROM token_transactions tt
+            LEFT JOIN tokens t ON tt.token_id = t.id
+            WHERE tt.user_id = ?
+            ORDER BY tt.created_at DESC
+            LIMIT 100
+        `, [userId]).catch(() => []);
+
+        console.log(`📋 ${transactions?.length || 0} transactions tokens pour user ${userId}`);
+
+        res.json({
+            success: true,
+            transactions: transactions || [],
+            count: transactions?.length || 0
+        });
+    } catch (error) {
+        console.error('❌ Erreur my-transactions:', error);
+        res.status(500).json({ success: false, error: error.message, transactions: [] });
+    }
+});
+
+/**
+ * GET /api/tokens/:id
+ * Détails d'un token
+ */
+app.get('/api/tokens/:id', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const token = await get(`
+            SELECT * FROM tokens WHERE id = ?
+        `, [id]);
+
+        if (!token) {
+            return res.status(404).json({ success: false, error: 'Token non trouvé' });
+        }
+
+        res.json({ success: true, token });
+    } catch (error) {
+        console.error('❌ Erreur token detail:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+// ============================================================
+// FIN BLOC TOKENS
+// ============================================================
 // ============================================
 // GET - Calculer les détails d'un prêt (simulation)
 // ============================================

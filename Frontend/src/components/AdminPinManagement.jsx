@@ -21,7 +21,7 @@ function AdminPinManagement() {
       const token = localStorage.getItem('accessToken')
       
       if (activeTab === 'users') {
-         const response = await  axios.get(`/api/admin/users-without-pin`, {
+         const response = await  axios.get(`${API_URL}/api/admin/users-without-pin`, {
           headers: { Authorization: `Bearer ${token}` }
         })
         setUsers(response.data.users || [])
@@ -45,7 +45,7 @@ function AdminPinManagement() {
     setProcessingId(userId)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`/api/admin/reset-user-pin/${userId}`, {}, {
+      await axios.post(`${token}/api/admin/reset-user-pin/${userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       toast.success(`PIN de ${userName} réinitialisé avec succès`)

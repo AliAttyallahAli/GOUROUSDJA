@@ -147,7 +147,7 @@ function Deposit({ user }) {
     
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post('/api/deposit', {
+      const response = await axios.post('/deposit', {
         amount: pendingDeposit.amount,
         agent_id: pendingDeposit.agent_id,
         description: pendingDeposit.description

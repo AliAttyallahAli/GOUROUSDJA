@@ -259,7 +259,7 @@ function AdminPanel({ user }) {
     
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post('/api/admin/users', {
+      const response = await axios.post('/admin/users', {
         phone: userForm.phone,
         fullname: userForm.fullname,
         password: userForm.password,
@@ -375,7 +375,7 @@ function AdminPanel({ user }) {
     
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post(`/api/admin/users/${selectedUser.id}/reset-password`, {
+      const response = await axios.post(`${token}/api/admin/users/${selectedUser.id}/reset-password`, {
         new_password: newPassword
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -462,7 +462,7 @@ function AdminPanel({ user }) {
     
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post('/api/admin/agents', 
+      const response = await axios.post('/admin/agents', 
         {
           phone: agentForm.phone,
           fullname: agentForm.fullname,
@@ -596,7 +596,7 @@ function AdminPanel({ user }) {
     const token = localStorage.getItem('accessToken')
     
     try {
-      const response = await axios.post(`/api/admin/users/${selectedUserForReset.id}/reset-key`, {}, {
+      const response = await axios.post(`${token}/api/admin/users/${selectedUserForReset.id}/reset-key`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       
@@ -937,7 +937,7 @@ function AdminPanel({ user }) {
               const formData = new FormData(e.target)
               try {
                 const token = localStorage.getItem('accessToken')
-                await axios.post('/api/admin/announce', {
+                await axios.post('/admin/announce', {
                   title: formData.get('title'),
                   content: formData.get('content'),
                   facebook_link: formData.get('facebook'),

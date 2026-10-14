@@ -115,7 +115,7 @@ function BecomeAgent({ user }) {
       }
       
       const token = localStorage.getItem('accessToken')
-      await axios.post('/api/become-agent', submitData, {
+      await axios.post('/become-agent', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: token ? `Bearer ${token}` : undefined

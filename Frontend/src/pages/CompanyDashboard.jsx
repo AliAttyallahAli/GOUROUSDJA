@@ -99,7 +99,7 @@ const CompanyDashboard = ({ user, socket }) => {
         try {
             // ✅ Utilise /api/company/wallet/balance
              const response = await axios.get(
-                ` /api/company/wallet/balance`,
+                `${API_URL}/api/company/wallet/balance`,
                 getAuthHeaders()
             );
 
@@ -121,7 +121,7 @@ const CompanyDashboard = ({ user, socket }) => {
         try {
             // ✅ Utilise /api/notifications
              const response = await axios.get(
-                ` /api/notifications`,
+                `${API_URL}/api/notifications`,
                 getAuthHeaders()
             );
             const data = response.data?.notifications || response.data?.data || response.data || [];
@@ -162,7 +162,7 @@ const CompanyDashboard = ({ user, socket }) => {
         setSearchingMeter(true);
         try {
             const response = await axios.post(
-                ` /api/bill-payments/search-meter`,
+                `${API_URL}/api/bill-payments/search-meter`,
                 {
                     meter_number: searchMeter,
                     company_id: companyData?.company?.id
@@ -211,7 +211,7 @@ const CompanyDashboard = ({ user, socket }) => {
         setPaying(true);
         try {
             const response = await axios.post(
-                ` /api/bill-payment`,
+                `${API_URL}/api/bill-payment`,
                 {
                     company_id: companyData?.company?.id,
                     customer_name: paymentData.customer_name,
@@ -276,7 +276,7 @@ const CompanyDashboard = ({ user, socket }) => {
         try {
             // ✅ Utilise /api/company/transfer
             const response = await axios.post(
-                ` /api/company/transfer`,
+                `${API_URL}/api/company/transfer`,
                 {
                     to_phone: transferPhone,
                     amount: amountNum,

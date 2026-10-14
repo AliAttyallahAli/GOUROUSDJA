@@ -4,7 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { FaPhone, FaLock, FaKey, FaMoneyBillWave, FaEye, FaEyeSlash, FaGift, FaUserPlus, FaCheckCircle, FaTimes } from 'react-icons/fa'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 function Login({ setUser }) {
   const [phone, setPhone] = useState('')
@@ -108,7 +108,7 @@ function Login({ setUser }) {
     
     setSendingRequest(true)
     try {
-      await axios.post('/api/auth/forgot-password', { phone: forgotPhone })
+      await axios.post('/auth/forgot-password', { phone: forgotPhone })
       setForgotSuccess(true)
       setTimeout(() => {
         setShowForgotModal(false)

@@ -43,7 +43,7 @@ function Dashboard({ user, socket }) {
       const token = localStorage.getItem('accessToken')
       const [balanceRes, historyRes] = await Promise.all([
         axios.get(`${API_URL}/api/wallet/balance`, { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get(`${API_URL}/api/wallet/history?limit=5`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(`${API_URL}/api/wallet/history?limit=5`, { headers: { Authorization: `Bearer ${token}` } }),
       ])
       setBalance(balanceRes.data.balance)
       setRecentTransactions(historyRes.data.transactions || [])

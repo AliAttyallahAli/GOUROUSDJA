@@ -37,7 +37,7 @@ function AgentApplicationsManager() {
     setLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-       const response = await axios.get(`/api/admin/agent-applications?status=${filter}&limit=${itemsPerPage}&offset=${(currentPage-1)*itemsPerPage}`, {
+       const response = await axios.get(`${API_URL}/api/admin/agent-applications?status=${filter}&limit=${itemsPerPage}&offset=${(currentPage-1)*itemsPerPage}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setApplications(response.data.applications || [])
@@ -62,7 +62,7 @@ function AgentApplicationsManager() {
     setProcessing(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`/api/admin/agent-applications/${id}/review`, 
+      await axios.post(`${token}/api/admin/agent-applications/${id}/review`, 
         { action: 'approve' },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -85,7 +85,7 @@ function AgentApplicationsManager() {
     setProcessing(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`/api/admin/agent-applications/${selectedAppId}/review`, 
+      await axios.post(`${token}/api/admin/agent-applications/${selectedAppId}/review`, 
         { action: 'reject', rejection_reason: rejectionReason },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -109,7 +109,7 @@ function AgentApplicationsManager() {
   const downloadDocument = async (id, type) => {
     try {
       const token = localStorage.getItem('accessToken')
-       const response = await axios.get(`/api/admin/agent-applications/${id}/download/${type}`, {
+       const response = await axios.get(`${API_URL}/api/admin/agent-applications/${id}/download/${type}`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       })

@@ -130,7 +130,7 @@ const AgencyManagement = ({ user, socket }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      await axios.post('/api/agency/trips', tripForm, {
+      await axios.post('/agency/trips', tripForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Trajet créé avec succès');
@@ -199,7 +199,7 @@ const AgencyManagement = ({ user, socket }) => {
   const handleValidateBooking = async (id) => {
     try {
       const token = localStorage.getItem('accessToken');
-      await axios.post(`/api/agency/bookings/${id}/validate`, {}, {
+      await axios.post(`${token}/api/agency/bookings/${id}/validate`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Réservation validée');
@@ -217,7 +217,7 @@ const AgencyManagement = ({ user, socket }) => {
     
     try {
       const token = localStorage.getItem('accessToken');
-      await axios.post(`/api/agency/bookings/${id}/reject`, { rejection_reason: reason }, {
+      await axios.post(`${token}/api/agency/bookings/${id}/reject`, { rejection_reason: reason }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Réservation rejetée et remboursement effectué');

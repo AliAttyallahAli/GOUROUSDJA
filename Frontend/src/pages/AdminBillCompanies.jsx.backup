@@ -61,7 +61,7 @@ const AdminBillCompanies = ({ user }) => {
         });
         toast.success('Entreprise modifiée avec succès');
       } else {
-        const response = await axios.post('/api/admin/service-companies', formData, {
+        const response = await axios.post('/admin/service-companies', formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.success) {

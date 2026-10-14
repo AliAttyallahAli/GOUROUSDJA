@@ -15,6 +15,7 @@ import {
   FaInfoCircle
 } from 'react-icons/fa'
 import Layout from '../components/Layout'
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 function Profile({ user }) {
@@ -100,13 +101,12 @@ function Profile({ user }) {
 
   const fetchProfile = async () => {
     try {
-      const token = localStorage.getItem('accessToken')
-      
-      const profileRes =  (` /api/user/me`, {
+      const token = localStorage.getItem('accessToken');
+      const profileRes =  (`${API_URL}/api/user/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       
-      const balanceRes =  (` /api/wallet/balance`, {
+      const balanceRes =  (`${API_URL}/api/wallet/balance`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       
@@ -172,8 +172,8 @@ function Profile({ user }) {
 
   const fetchReferralInfo = async () => {
     try {
-      const token = localStorage.getItem('accessToken')
-       const response = await  axios.get(`/api/referral/stats`, {
+      const token = localStorage.getItem('accessToken');
+       const response = await  axios.get(`${API_URL}/api/referral/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setReferralStats(response.data)
@@ -190,7 +190,7 @@ function Profile({ user }) {
 
   const fetchProvinces = async () => {
     try {
-       const response = await  axios.get(`/api/provinces`)
+       const response = await  axios.get(`${API_URL}/api/provinces`)
       if (Array.isArray(response.data)) {
         setProvinces(response.data)
       }
@@ -201,8 +201,8 @@ function Profile({ user }) {
 
   const fetchKycStatus = async () => {
     try {
-      const token = localStorage.getItem('accessToken')
-       const response = await  axios.get(`/api/kyc/status`, {
+      const token = localStorage.getItem('accessToken');
+       const response = await  axios.get(`${API_URL}/api/kyc/status`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setKycStatus(response.data)
@@ -238,8 +238,8 @@ function Profile({ user }) {
 
   const fetchKycHistory = async () => {
     try {
-      const token = localStorage.getItem('accessToken')
-       const response = await  axios.get(`/api/kyc/history`, {
+      const token = localStorage.getItem('accessToken');
+       const response = await  axios.get(`${API_URL}/api/kyc/history`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setKycHistory(response.data || [])
@@ -266,8 +266,8 @@ function Profile({ user }) {
   const handleSaveProfile = async () => {
     setSaving(true)
     try {
-      const token = localStorage.getItem('accessToken')
-      await axios.put(` /api/user/profile`, {
+      const token = localStorage.getItem('accessToken');
+      await axios.put(`${API_URL}/api/user/profile`, {
         fullname: formData.fullname,
         email: formData.email,
         city: formData.city,
@@ -337,7 +337,7 @@ function Profile({ user }) {
 
         console.log('📝 Envoi niveau 2 avec tous les champs:', payload)
 
-        const response = await axios.post(` /api/kyc/submit-level-2`, payload, {
+        const response = await axios.post(`${API_URL}/api/kyc/submit-level-2`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -381,7 +381,7 @@ function Profile({ user }) {
         formDataKyc.append('proofOfAddress', selectedFiles.proofOfAddress)
       }
       
-      await axios.post(` /api/kyc/submit`, formDataKyc, {
+      await axios.post(`${API_URL}/api/kyc/submit`, formDataKyc, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -448,8 +448,8 @@ function Profile({ user }) {
 
   const downloadKycDocument = async (documentId, filename) => {
     try {
-      const token = localStorage.getItem('accessToken')
-       const response = await  axios.get(`/api/kyc/download/${documentId}`, {
+      const token = localStorage.getItem('accessToken');
+       const response = await  axios.get(`${API_URL}/api/kyc/download/${documentId}`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       })

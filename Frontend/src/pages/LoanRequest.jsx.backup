@@ -102,7 +102,7 @@ const LoanRequest = ({ user, socket }) => {
         
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post('/api/loans/calculate', {
+            const response = await axios.post('/loans/calculate', {
                 amount, duration_months: duration
             }, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -132,7 +132,7 @@ const LoanRequest = ({ user, socket }) => {
         setSubmitting(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post('/api/loans/request', formData, {
+            const response = await axios.post('/loans/request', formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -159,7 +159,7 @@ const LoanRequest = ({ user, socket }) => {
     const handleRepay = async (loanId, amount) => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post(`/api/loans/${loanId}/repay`, 
+            const response = await axios.post(`${token}/api/loans/${loanId}/repay`, 
                 { amount }, 
                 { headers: { Authorization: `Bearer ${token}` } }
             );

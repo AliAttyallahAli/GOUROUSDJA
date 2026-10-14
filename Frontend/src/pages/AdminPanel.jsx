@@ -274,7 +274,7 @@ function AdminPanel({ user, socket }) {
 
   const fetchAdminData = async () => {
     try {
-      const token = localStorage.getItem('accessToken ')
+      const token = localStorage.getItem('accessToken')
       const [usersRes, agentsRes] = await Promise.all([
         axios.get(`${API_URL}/api/admin/users`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_URL}/api/admin/users?role=agent`, { headers: { Authorization: `Bearer ${token}` } })
@@ -319,7 +319,7 @@ function AdminPanel({ user, socket }) {
     setKycLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get(`/api/admin/kyc/requests?status=${kycFilter}`, {
+      const response = await axios.get(`${API_URL}/api/admin/kyc/requests?status=${kycFilter}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setKycRequests(response.data.requests || [])
@@ -345,9 +345,9 @@ function AdminPanel({ user, socket }) {
       }
 
       // ✅ Utiliser axios comme les autres fonctions
-      const response = await axios.get(`${API_URL}/api/service-companies`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await axios.get(
+        `${API_URL}/api/service-companies`, {
+        headers: {'Authorization': `Bearer ${token}`
         }
       });
 
@@ -375,7 +375,8 @@ function AdminPanel({ user, socket }) {
     setTravelAgenciesLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`${API_URL}/api/admin/travel-agencies`, {
+      const response = await axios.get(
+        `${API_URL}/api/admin/travel-agencies`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTravelAgencies(response.data || []);
@@ -389,7 +390,8 @@ function AdminPanel({ user, socket }) {
 
   const fetchProvinces = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/provinces`);
+      const response = await axios.get(
+        `${API_URL}/api/provinces`)
       if (Array.isArray(response.data)) {
         setProvinces(response.data);
       } else {
@@ -501,7 +503,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(`/api/admin/travel-agencies/${editingTravelAgency.id}`, {
+      await axios.put(`${API_URL}/api/admin/travel-agencies/${editingTravelAgency.id}`, {
         name: travelAgencyForm.name,
         type: travelAgencyForm.type,
         description: travelAgencyForm.description,
@@ -541,7 +543,8 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.delete(`/api/admin/travel-agencies/${id}`, {
+      await axios.delete(
+        `${API_URL}/api/admin/travel-agencies/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       toast.success('Agence de voyage supprimée')
@@ -697,7 +700,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(`/api/admin/service-companies/${editingCompany.id}`, {
+      await axios.put(`${API_URL}/api/admin/service-companies/${editingCompany.id}`, {
         name: companyForm.name,
         type: companyForm.type,
         fullName: companyForm.fullName || '',
@@ -731,7 +734,8 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.delete(`/api/admin/service-companies/${id}`, {
+      await axios.delete(
+        `${API_URL}/api/admin/service-companies/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       toast.success('Entreprise supprimée')
@@ -852,7 +856,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(`/api/admin/users/${editUserForm.id}`, {
+      await axios.put(`${API_URL}/api/admin/users/${editUserForm.id}`, {
         fullname: editUserForm.fullname,
         email: editUserForm.email,
         province: editUserForm.province,
@@ -877,7 +881,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(`/api/admin/users/${userId}/toggle-status`, {
+      await axios.put(`${API_URL}/api/admin/users/${userId}/toggle-status`, {
         is_active: !currentStatus
       }, { headers: { Authorization: `Bearer ${token}` } })
 
@@ -904,7 +908,7 @@ function AdminPanel({ user, socket }) {
     const token = localStorage.getItem('accessToken')
 
     try {
-      const response = await axios.post(`/api/admin/users/${selectedUser.id}/reset-password`, {}, {
+      const response = await axios.post(`${token}/api/admin/users/${selectedUser.id}/reset-password`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
 
@@ -950,7 +954,7 @@ function AdminPanel({ user, socket }) {
     const token = localStorage.getItem('accessToken')
 
     try {
-      const response = await axios.post(`/api/admin/users/${selectedUserForReset.id}/reset-key`, {}, {
+      const response = await axios.post(`${token}/api/admin/users/${selectedUserForReset.id}/reset-key`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
 
@@ -990,7 +994,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.delete(`/api/admin/users/${userId}`, { headers: { Authorization: `Bearer ${token}` } })
+      await axios.delete(`${API_URL}/api/admin/users/${userId}`, { headers: { Authorization: `Bearer ${token}` } })
       toast.success('Utilisateur supprimé')
       fetchAdminData()
     } catch (error) {
@@ -1097,7 +1101,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(`/api/admin/agents/${editAgentForm.id}`, {
+      await axios.put(`${API_URL}/api/admin/agents/${editAgentForm.id}`, {
         fullname: editAgentForm.fullname,
         province: editAgentForm.province,
         agency_name: editAgentForm.agency_name,
@@ -1120,7 +1124,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(`/api/admin/agents/${agentId}/toggle-status`, { is_active: !currentStatus }, { headers: { Authorization: `Bearer ${token}` } })
+      await axios.put(`${API_URL}/api/admin/agents/${agentId}/toggle-status`, { is_active: !currentStatus }, { headers: { Authorization: `Bearer ${token}` } })
       toast.success(`Agent ${action === 'bloquer' ? 'bloqué' : 'débloqué'}`)
       fetchAdminData()
     } catch (error) {
@@ -1133,7 +1137,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.delete(`/api/admin/agents/${agentId}`, { headers: { Authorization: `Bearer ${token}` } })
+      await axios.delete(`${API_URL}/api/admin/agents/${agentId}`, { headers: { Authorization: `Bearer ${token}` } })
       toast.success('Agent supprimé')
       fetchAdminData()
     } catch (error) {
@@ -1155,7 +1159,7 @@ function AdminPanel({ user, socket }) {
     setProcessingKyc(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`/api/admin/kyc/verify/${kycId}`,
+      await axios.post(`${token}/api/admin/kyc/verify/${kycId}`,
         { action: 'approve', level: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -1176,7 +1180,7 @@ function AdminPanel({ user, socket }) {
     setProcessingKyc(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`/api/admin/kyc/verify/${kycId}`,
+      await axios.post(`${token}/api/admin/kyc/verify/${kycId}`,
         { action: 'reject', rejection_reason: reason },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -1211,7 +1215,7 @@ function AdminPanel({ user, socket }) {
     if (!window.confirm(`Supprimer l'article "${title}" ?`)) return
     const token = localStorage.getItem('accessToken')
     try {
-      await axios.delete(`/api/blog/posts/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+      await axios.delete(`${API_URL}/api/blog/posts/${id}`, { headers: { Authorization: `Bearer ${token}` } })
       toast.success('Article supprimé')
       fetchBlogPosts()
     } catch (error) {
@@ -1226,7 +1230,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       if (editingPost) {
-        await axios.put(`/api/blog/posts/${editingPost.id}`, blogForm, { headers: { Authorization: `Bearer ${token}` } })
+        await axios.put(`${API_URL}/api/blog/posts/${editingPost.id}`, blogForm, { headers: { Authorization: `Bearer ${token}` } })
         toast.success('Article modifié')
       } else {
         await axios.post(`${API_URL}/api/blog/posts`, blogForm, { headers: { Authorization: `Bearer ${token}` } })

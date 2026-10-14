@@ -423,7 +423,7 @@ const Chat = ({ user, socket }) => {
             // Vérifier si l'utilisateur existe
             try {
                 const token = localStorage.getItem('accessToken');
-                const response = await axios.post('/api/chat/check-user', {
+                const response = await axios.post('/chat/check-user', {
                     phone: dialpadNumber
                 }, {
                     headers: { Authorization: `Bearer ${token}` }
@@ -531,7 +531,7 @@ const Chat = ({ user, socket }) => {
         setSending(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post('/api/chat/send', {
+            const response = await axios.post('/chat/send', {
                 receiver_id: selectedContact.id,
                 message: newMessage.trim()
             }, {
@@ -581,14 +581,14 @@ const Chat = ({ user, socket }) => {
         setSending(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post('/api/chat/check-user', {
+            const response = await axios.post('/chat/check-user', {
                 phone: phone
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
             if (response.data.exists) {
-                const sendResponse = await axios.post('/api/chat/send-by-phone', {
+                const sendResponse = await axios.post('/chat/send-by-phone', {
                     phone: phone,
                     message: message
                 }, {

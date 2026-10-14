@@ -360,7 +360,7 @@ const Investments = ({ user, socket }) => {
 
             console.log('📝 Création entreprise:', payload);
 
-            const response = await axios.post('/api/investment/company', payload, {
+            const response = await axios.post('/investment/company', payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -493,7 +493,7 @@ const Investments = ({ user, socket }) => {
         setSubmitting(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post('/api/investment/invest', {
+            const response = await axios.post('/investment/invest', {
                 company_id: selectedCompany.id,
                 amount: amount,
                 shares: sharesCount

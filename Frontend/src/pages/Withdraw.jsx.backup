@@ -202,7 +202,7 @@ function Withdraw({ user, socket }) {
     
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post('/api/withdraw', {
+      const response = await axios.post('/withdraw', {
         amount: pendingWithdraw.amount,
         agent_id: pendingWithdraw.agent_id,
         agent_phone: pendingWithdraw.agent_phone,

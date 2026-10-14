@@ -438,7 +438,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post('/api/admin/travel-agencies', {
+      const response = await axios.post('/admin/travel-agencies', {
         name: travelAgencyForm.name,
         type: travelAgencyForm.type,
         description: travelAgencyForm.description,
@@ -621,7 +621,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post('/api/admin/service-companies', {
+      const response = await axios.post('/admin/service-companies', {
         name: companyForm.name,
         type: companyForm.type,
         fullName: companyForm.fullName || '',
@@ -799,7 +799,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post('/api/admin/users', {
+      const response = await axios.post('/admin/users', {
         phone: userForm.phone,
         fullname: userForm.fullname,
         password: userForm.password,
@@ -901,7 +901,7 @@ function AdminPanel({ user, socket }) {
     const token = localStorage.getItem('accessToken')
 
     try {
-      const response = await axios.post(`/api/admin/users/${selectedUser.id}/reset-password`, {}, {
+      const response = await axios.post(`${token}/api/admin/users/${selectedUser.id}/reset-password`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
 
@@ -947,7 +947,7 @@ function AdminPanel({ user, socket }) {
     const token = localStorage.getItem('accessToken')
 
     try {
-      const response = await axios.post(`/api/admin/users/${selectedUserForReset.id}/reset-key`, {}, {
+      const response = await axios.post(`${token}/api/admin/users/${selectedUserForReset.id}/reset-key`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
 
@@ -1045,7 +1045,7 @@ function AdminPanel({ user, socket }) {
 
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.post('/api/admin/agents',
+      const response = await axios.post('/admin/agents',
         {
           phone: agentForm.phone,
           fullname: agentForm.fullname,
@@ -1153,7 +1153,7 @@ function AdminPanel({ user, socket }) {
     setProcessingKyc(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`/api/admin/kyc/verify/${kycId}`,
+      await axios.post(`${token}/api/admin/kyc/verify/${kycId}`,
         { action: 'approve', level: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -1174,7 +1174,7 @@ function AdminPanel({ user, socket }) {
     setProcessingKyc(true)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`/api/admin/kyc/verify/${kycId}`,
+      await axios.post(`${token}/api/admin/kyc/verify/${kycId}`,
         { action: 'reject', rejection_reason: reason },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -1227,7 +1227,7 @@ function AdminPanel({ user, socket }) {
         await axios.put(`/api/blog/posts/${editingPost.id}`, blogForm, { headers: { Authorization: `Bearer ${token}` } })
         toast.success('Article modifié')
       } else {
-        await axios.post('/api/blog/posts', blogForm, { headers: { Authorization: `Bearer ${token}` } })
+        await axios.post('/blog/posts', blogForm, { headers: { Authorization: `Bearer ${token}` } })
         toast.success('Article créé')
       }
       setShowBlogForm(false)
@@ -2208,7 +2208,7 @@ function AdminPanel({ user, socket }) {
             const formData = new FormData(e.target)
             try {
               const token = localStorage.getItem('accessToken')
-              await axios.post('/api/admin/announce', {
+              await axios.post('/admin/announce', {
                 title: formData.get('title'),
                 content: formData.get('content'),
                 facebook_link: formData.get('facebook'),

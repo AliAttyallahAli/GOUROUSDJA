@@ -64,7 +64,7 @@ function NotificationCenter({ user, socket }) {
     setLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-       const response = await  axios.get(`/api/notifications`, {
+       const response = await  axios.get(`${API_URL}/api/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications(response.data || [])
@@ -136,7 +136,7 @@ function NotificationCenter({ user, socket }) {
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(`/api/notifications/${notificationId}/read`, {}, {
+      await axios.put(`${API_URL}/api/notifications/${notificationId}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications(prev => prev.map(n => 
@@ -151,7 +151,7 @@ function NotificationCenter({ user, socket }) {
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(` /api/notifications/read-all`, {}, {
+      await axios.put(`${API_URL}/api/notifications/read-all`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
@@ -167,7 +167,7 @@ function NotificationCenter({ user, socket }) {
     
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.delete(`/api/notifications/${notificationId}`, {
+      await axios.delete(`${API_URL}/api/notifications/${notificationId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications(prev => prev.filter(n => n.id !== notificationId))
@@ -185,7 +185,7 @@ function NotificationCenter({ user, socket }) {
     
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.delete(` /api/notifications/all`, {
+      await axios.delete(`${API_URL}/api/notifications/all`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications([])

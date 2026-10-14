@@ -67,7 +67,7 @@ const CompanyNotifications = ({ user, socket }) => {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-       const response = await  axios.get(`/api/company/notifications`, {
+       const response = await  axios.get(`${API_URL}/api/company/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -86,7 +86,7 @@ const CompanyNotifications = ({ user, socket }) => {
   const fetchNotificationStats = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-       const response = await  axios.get(`/api/company/notifications/stats`, {
+       const response = await  axios.get(`${API_URL}/api/company/notifications/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -101,7 +101,7 @@ const CompanyNotifications = ({ user, socket }) => {
   const markAsRead = async (id) => {
     try {
       const token = localStorage.getItem('accessToken');
-      await axios.put(`/api/company/notifications/${id}/read`, {}, {
+      await axios.put(`${API_URL}/api/company/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -118,7 +118,7 @@ const CompanyNotifications = ({ user, socket }) => {
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      await axios.put(` /api/company/notifications/read-all`, {}, {
+      await axios.put(`${API_URL}/api/company/notifications/read-all`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -134,7 +134,7 @@ const CompanyNotifications = ({ user, socket }) => {
   const deleteNotification = async (id) => {
     try {
       const token = localStorage.getItem('accessToken');
-      await axios.delete(`/api/company/notifications/${id}`, {
+      await axios.delete(`${API_URL}/api/company/notifications/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

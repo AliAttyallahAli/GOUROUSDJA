@@ -65,7 +65,7 @@ const Savings = ({ user, socket }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-             const response = await  axios.get(`/api/savings`, {
+             const response = await  axios.get(`${API_URL}/api/savings`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSavings(response.data.data || []);
@@ -82,7 +82,7 @@ const Savings = ({ user, socket }) => {
     const fetchUserBalance = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-             const response = await  axios.get(`/api/wallet/balance`, {
+             const response = await  axios.get(`${API_URL}/api/wallet/balance`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUserBalance(response.data.balance || 0);
@@ -98,7 +98,7 @@ const Savings = ({ user, socket }) => {
         
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post(` /api/savings`, createForm, {
+            const response = await axios.post(`${API_URL}/api/savings`, createForm, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -139,7 +139,7 @@ const Savings = ({ user, socket }) => {
         setSubmitting(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post(`/api/savings/${selectedSavings.id}/deposit`, 
+            const response = await axios.post(`${token}/api/savings/${selectedSavings.id}/deposit`, 
                 { amount }, 
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -175,7 +175,7 @@ const Savings = ({ user, socket }) => {
         setSubmitting(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post(`/api/savings/${selectedSavings.id}/withdraw-request`, 
+            const response = await axios.post(`${token}/api/savings/${selectedSavings.id}/withdraw-request`, 
                 { amount, reason: withdrawReason }, 
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -204,7 +204,7 @@ const Savings = ({ user, socket }) => {
         
         try {
             const token = localStorage.getItem('accessToken');
-             const response = await axios.get(`/api/savings/${savingsItem.id}`, {
+             const response = await axios.get(`${API_URL}/api/savings/${savingsItem.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSavingsDetail(response.data.data);

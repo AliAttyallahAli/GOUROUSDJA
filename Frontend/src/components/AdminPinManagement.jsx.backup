@@ -45,7 +45,7 @@ function AdminPinManagement() {
     setProcessingId(userId)
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.post(`/api/admin/reset-user-pin/${userId}`, {}, {
+      await axios.post(`${token}/api/admin/reset-user-pin/${userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       toast.success(`PIN de ${userName} réinitialisé avec succès`)

@@ -76,7 +76,7 @@ function NotificationManager({ user, socket }) {
     setLoading(true)
     try {
       const token = localStorage.getItem('accessToken')
-       const response = await  axios.get(`/api/notifications`, {
+       const response = await  axios.get(`${API_URL}/api/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       
@@ -116,7 +116,7 @@ function NotificationManager({ user, socket }) {
   const markAsRead = async (id) => {
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(`/api/notifications/${id}/read`, {}, {
+      await axios.put(`${API_URL}/api/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications(prev => 
@@ -131,7 +131,7 @@ function NotificationManager({ user, socket }) {
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.put(` /api/notifications/read-all`, {}, {
+      await axios.put(`${API_URL}/api/notifications/read-all`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
@@ -147,7 +147,7 @@ function NotificationManager({ user, socket }) {
     e.stopPropagation()
     try {
       const token = localStorage.getItem('accessToken')
-      await axios.delete(`/api/notifications/${id}`, {
+      await axios.delete(`${API_URL}/api/notifications/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setNotifications(prev => prev.filter(n => n.id !== id))
