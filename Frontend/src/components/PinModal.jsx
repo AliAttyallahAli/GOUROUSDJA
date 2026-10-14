@@ -4,6 +4,9 @@ import { FaTimes, FaShieldAlt, FaKey } from 'react-icons/fa'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
+
+
 function PinModal({ isOpen, onClose, onSuccess, type = 'set', amount = null, onCancel }) {
   const [pin, setPin] = useState('')
   const [confirmPin, setConfirmPin] = useState('')
@@ -59,7 +62,7 @@ function PinModal({ isOpen, onClose, onSuccess, type = 'set', amount = null, onC
     
     setLoading(true)
     try {
-      const token = localStorage.getItem('accessToken ')
+      const token = localStorage.getItem('accessToken')
       const response = await axios.post(`${API_URL}/api/user/set-transaction-pin`, 
         { pin: pin },
         { headers: { Authorization: `Bearer ${token}` } }
