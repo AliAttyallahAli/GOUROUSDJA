@@ -48,7 +48,7 @@ const KYCLevel2 = ({ user, socket }) => {
 
     const checkKYCStatus = async () => {
         try {
-            const token = localStorage.getItem('accessToken');
+            const token = localStorage.getItem('accessToken')
              const response = await  axios.get(`${API_URL}/api/kyc/status`, {
                 headers: { Authorization: `Bearer ${token}` }
             });

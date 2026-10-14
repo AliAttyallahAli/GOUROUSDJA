@@ -120,9 +120,9 @@ const BusBooking = ({ user, socket }) => {
   const checkBalanceBeforeBooking = async (tripId, seatCount) => {
     setCheckingBalance(true);
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('accessToken')
        const response = await axios.get(`${API_URL}/api/bookings/check-balance?trip_id=${tripId}&seat_count=${seatCount}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}`}
       });
       setBalanceCheck(response.data);
       return response.data;

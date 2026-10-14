@@ -54,7 +54,7 @@ function AdminTaxes({ user }) {
     const fetchCommunes = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('accessToken');
+            const token = localStorage.getItem('accessToken')
              const response = await  axios.get(`${API_URL}/api/admin/communes`, {
                 headers: { Authorization: `Bearer ${token}` }
             });

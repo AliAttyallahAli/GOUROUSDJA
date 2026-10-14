@@ -130,7 +130,7 @@ const AgencyManagement = ({ user, socket }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('accessToken')
       await axios.post(`${API_URL}/api/agency/trips`, tripForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
