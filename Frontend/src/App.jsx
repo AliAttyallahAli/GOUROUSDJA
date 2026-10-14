@@ -1,401 +1,319 @@
-// src/pages/Login.jsx
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
-import {
-    FaPhone, FaLock, FaKey, FaMoneyBillWave, FaEye, FaEyeSlash,
-    FaGift, FaUserPlus, FaCheckCircle
-} from 'react-icons/fa';
+// src/App.jsx - Version optimisée avec lazy loading
+import React, { useState, useEffect, lazy, Suspense } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { io } from 'socket.io-client'
+import axios from 'axios'
+import { Toaster } from 'react-hot-toast'
+import { toast } from './utils/toast'
+import ErrorBoundary from './components/ErrorBoundary'
+import PrivateRoute from './components/PrivateRoute'
+import TokenMarket from './pages/TokenMarket';
+import TokenDetail from './pages/TokenDetail';
+import MyTokens from './pages/MyTokens';
+// ============================================
+// PAGES PUBLIQUES (import direct - chargement immédiat)
+// ============================================
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Home from './pages/Home'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// ============================================
+// PAGES PROTÉGÉES (lazy loading - chargement à la demande)
+// ============================================
 
-function Login({ setUser }) {
-    const [phone, setPhone] = useState('');
-    const [password, setPassword] = useState('');
-    const [privateKey, setPrivateKey] = useState('');
-    const [loginMode, setLoginMode] = useState('password');
-    const [loading, setLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
-    const [showForgotModal, setShowForgotModal] = useState(false);
-    const [forgotPhone, setForgotPhone] = useState('');
-    const [sendingRequest, setSendingRequest] = useState(false);
-    const [forgotSuccess, setForgotSuccess] = useState(false);
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+// Dashboard & core
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Transfer = lazy(() => import('./pages/Transfer'))
+const History = lazy(() => import('./pages/History'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Settings = lazy(() => import('./pages/Settings'))
+const Chat = lazy(() => import('./pages/Chat'))
 
-    const referralCode = searchParams.get('ref');
+// Admin
+const AdminPanel = lazy(() => import('./pages/AdminPanel'))
+const CreateAgent = lazy(() => import('./pages/CreateAgent'))
+const AdminLoans = lazy(() => import('./pages/AdminLoans'))
+const AdminTaxes = lazy(() => import('./pages/AdminTaxes'))
+const AdminSavings = lazy(() => import('./pages/AdminSavings'))
+const AdminCards = lazy(() => import('./pages/AdminCards'))
+const AdminBillCompanies = lazy(() => import('./pages/AdminBillCompanies'))
+const KYCDetail = lazy(() => import('./pages/KYCDetail'))
+const AgentApplicationDetail = lazy(() => import('./pages/AgentApplicationDetail'))
 
-    // ============================================
-    // VÉRIFICATION TOKEN EXISTANT
-    // ============================================
-    useEffect(() => {
-        const token = localStorage.getItem('accessToken');
-        const savedUser = localStorage.getItem('user');
+// Pages publiques secondaires
+const Announcements = lazy(() => import('./pages/Announcements'))
+const Terms = lazy(() => import('./pages/Terms'))
+const Privacy = lazy(() => import('./pages/Privacy'))
+const Contact = lazy(() => import('./pages/Contact'))
+const Features = lazy(() => import('./pages/Features'))
+const Fees = lazy(() => import('./pages/Fees'))
+const BecomeAgent = lazy(() => import('./pages/BecomeAgent'))
+const FAQ = lazy(() => import('./pages/FAQ'))
+const Blog = lazy(() => import('./pages/Blog'))
+const BlogPost = lazy(() => import('./pages/BlogPost'))
+const Agents = lazy(() => import('./pages/Agents'))
+const Licenses = lazy(() => import('./pages/Licenses'))
 
-        if (token && savedUser) {
-            verifyToken(token, savedUser);
-        }
-    }, []);
+// Services financiers
+const LoanRequest = lazy(() => import('./pages/LoanRequest'))
+const Investments = lazy(() => import('./pages/Investments'))
+const InvestmentDetail = lazy(() => import('./pages/InvestmentDetail'))
+const Deposit = lazy(() => import('./pages/Deposit'))
+const Withdraw = lazy(() => import('./pages/Withdraw'))
+const Savings = lazy(() => import('./pages/Savings'))
 
-    const verifyToken = async (token, savedUser) => {
-        try {
-            // ✅ Syntaxe corrigée (pas d'espace double, pas d'erreur)
-            const response = await axios.get(
-                `${API_URL}/api/auth/verify`,
-                {
-                    headers: { Authorization: `Bearer ${token}` }
-                }
-            );
+// Cartes virtuelles
+const VirtualCard = lazy(() => import('./pages/VirtualCard'))
+const CardPayment = lazy(() => import('./pages/CardPayment'))
 
-            if (response.data.valid) {
-                const userData = JSON.parse(savedUser);
-                setUser(userData);
-                navigate('/dashboard');
-            } else {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('user');
-            }
-        } catch (err) {
-            console.error('Erreur vérification token:', err);
-        }
-    };
+// Taxes & Impôts
+const TaxPayment = lazy(() => import('./pages/TaxPayment'))
+const TaxManagement = lazy(() => import('./pages/TaxManagement'))
 
-    // ============================================
-    // CONNEXION
-    // ============================================
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
+// Entreprises
+const MyCompany = lazy(() => import('./pages/MyCompany'))
+const CompanyDashboard = lazy(() => import('./pages/CompanyDashboard'))
 
-        try {
-            let endpoint = `${API_URL}/api/auth/login`;
-            let payload = { phone };
+// Services divers
+const BillPayment = lazy(() => import('./pages/BillPayment'))
+const BusBooking = lazy(() => import('./pages/BusBooking'))
+const AgencyManagement = lazy(() => import('./pages/AgencyManagement'))
 
-            if (loginMode === 'password') {
-                if (!password) {
-                    showMessage('Veuillez saisir votre mot de passe', 'error');
-                    setLoading(false);
-                    return;
-                }
-                payload.password = password;
-            } else {
-                if (!privateKey) {
-                    showMessage('Veuillez saisir votre clé privée', 'error');
-                    setLoading(false);
-                    return;
-                }
-                endpoint = `${API_URL}/api/auth/login-key`;
-                payload.privateKey = privateKey;
-            }
+// KYC & Sécurité
+const KYCLevel2 = lazy(() => import('./pages/KYCLevel2'))
+const TwoFactorAuth = lazy(() => import('./pages/TwoFactorAuth'))
+const NotificationDetail = lazy(() => import('./pages/NotificationDetail'))
 
-            const response = await axios.post(endpoint, payload);
+// ============================================
+// CONFIG SOCKET
+// ============================================
+const SOCKET_URL = import.meta.env.VITE_API_URL ||'/api'
+let socket = null
 
-            if (!response.data.tokens || !response.data.user) {
-                throw new Error('Données de connexion invalides');
-            }
-
-            localStorage.setItem('accessToken', response.data.tokens.accessToken);
-            localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-
-            setUser(response.data.user);
-            showMessage('Connexion réussie !', 'success');
-            navigate('/dashboard');
-
-        } catch (err) {
-            console.error('Erreur connexion:', err);
-            const errorMsg = err.response?.data?.error || 'Erreur de connexion. Vérifiez vos identifiants.';
-            showMessage(errorMsg, 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // ============================================
-    // MOT DE PASSE OUBLIÉ
-    // ============================================
-    const handleForgotPassword = async () => {
-        if (!forgotPhone || forgotPhone.length !== 8) {
-            showMessage('Veuillez entrer un numéro de téléphone valide (8 chiffres)', 'error');
-            return;
-        }
-
-        setSendingRequest(true);
-        try {
-            await axios.post(`${API_URL}/api/auth/forgot-password`, { phone: forgotPhone });
-            setForgotSuccess(true);
-            setTimeout(() => {
-                setShowForgotModal(false);
-                setForgotSuccess(false);
-                setForgotPhone('');
-            }, 3000);
-        } catch (err) {
-            const errorMsg = err.response?.data?.error || 'Erreur lors de l\'envoi de la demande';
-            showMessage(errorMsg, 'error');
-        } finally {
-            setSendingRequest(false);
-        }
-    };
-
-    // ============================================
-    // MESSAGE TOAST
-    // ============================================
-    const showMessage = (message, type) => {
-        const toast = document.createElement('div');
-        toast.className = `fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white ${
-            type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        } animate-slide-down`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    };
-
-    // ============================================
-    // HANDLERS
-    // ============================================
-    const handleModeChange = (mode) => {
-        setLoginMode(mode);
-        setPassword('');
-        setPrivateKey('');
-        setShowPassword(false);
-    };
-
-    // ============================================
-    // RENDU
-    // ============================================
+// ============================================
+// COMPOSANT LOADING
+// ============================================
+function PageLoader() {
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
-            <div className="card w-full max-w-md">
-                <div className="text-center mb-8">
-                    <div className="flex justify-center mb-4">
-                        <div className="bg-gradient-to-r from-blue-400 to-blue-600 p-4 rounded-full shadow-lg">
-                            <FaMoneyBillWave className="text-white text-4xl" />
-                        </div>
-                    </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">AlkherPay</h1>
-                    <p className="text-blue-200 text-sm">GOUROUSDJA - Transfert d'argent instantané</p>
-
-                    {referralCode && (
-                        <div className="mt-3 bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-xl p-2 border border-purple-500/30">
-                            <div className="flex items-center justify-center gap-2">
-                                <FaGift className="text-purple-300" />
-                                <p className="text-purple-200 text-xs">
-                                    🎉 Code parrainage : <span className="font-mono font-bold text-white">{referralCode}</span>
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Mode de connexion */}
-                <div className="flex gap-2 mb-6">
-                    <button
-                        onClick={() => handleModeChange('password')}
-                        className={`flex-1 py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
-                            loginMode === 'password'
-                                ? 'bg-blue-600 text-white shadow-lg'
-                                : 'bg-white/10 text-white/60 hover:bg-white/20'
-                        }`}
-                    >
-                        <FaLock className="text-sm" /> Mot de passe
-                    </button>
-                    <button
-                        onClick={() => handleModeChange('key')}
-                        className={`flex-1 py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
-                            loginMode === 'key'
-                                ? 'bg-blue-600 text-white shadow-lg'
-                                : 'bg-white/10 text-white/60 hover:bg-white/20'
-                        }`}
-                    >
-                        <FaKey className="text-sm" /> Clé 6 chiffres
-                    </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <div>
-                        <label className="block text-white/80 text-sm font-medium mb-2">
-                            <FaPhone className="inline mr-2" /> Numéro de téléphone
-                        </label>
-                        <input
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 8))}
-                            className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
-                            placeholder="Ex: 62787307"
-                            maxLength="8"
-                            required
-                        />
-                        <p className="text-white/40 text-xs mt-1">8 chiffres - Identifiant unique</p>
-                    </div>
-
-                    <div key={loginMode}>
-                        <label className="block text-white/80 text-sm font-medium mb-2">
-                            {loginMode === 'password' ? (
-                                <><FaLock className="inline mr-2" /> Mot de passe</>
-                            ) : (
-                                <><FaKey className="inline mr-2" /> Clé privée (6 chiffres)</>
-                            )}
-                        </label>
-                        <div className="relative">
-                            <input
-                                type={loginMode === 'password' ? (showPassword ? 'text' : 'password') : 'text'}
-                                value={loginMode === 'password' ? password : privateKey}
-                                onChange={(e) => {
-                                    if (loginMode === 'password') {
-                                        setPassword(e.target.value);
-                                    } else {
-                                        const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                                        setPrivateKey(value);
-                                    }
-                                }}
-                                className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
-                                placeholder={loginMode === 'password' ? 'Votre mot de passe' : '000000'}
-                                maxLength={loginMode === 'password' ? undefined : 6}
-                                required
-                            />
-                            {loginMode === 'password' && (
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/80"
-                                >
-                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                                </button>
-                            )}
-                        </div>
-                        {loginMode === 'key' && (
-                            <p className="text-white/40 text-xs mt-1">Clé à 6 chiffres reçue à l'inscription</p>
-                        )}
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-xl transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-blue-900 disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {loading ? (
-                            <div className="flex items-center justify-center gap-2">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                Connexion...
-                            </div>
-                        ) : (
-                            'Se connecter'
-                        )}
-                    </button>
-                </form>
-
-                <div className="mt-6 text-center">
-                    <Link
-                        to={referralCode ? `/register?ref=${referralCode}` : "/register"}
-                        className="inline-flex items-center gap-2 text-blue-300 hover:text-blue-200 transition-colors text-sm"
-                    >
-                        <FaUserPlus /> Pas encore de compte ? S'inscrire gratuitement
-                        {referralCode && (
-                            <span className="bg-purple-500/30 text-purple-200 text-xs px-2 py-0.5 rounded-full ml-2">
-                                +500 FCFA offerts
-                            </span>
-                        )}
-                    </Link>
-                </div>
-
-                <div className="mt-3 text-center">
-                    <button
-                        onClick={() => setShowForgotModal(true)}
-                        className="text-white/40 hover:text-white/60 transition-colors text-xs"
-                    >
-                        Mot de passe ou clé privée oublié ?
-                    </button>
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-white/10">
-                    <div className="flex items-center justify-center gap-2 text-white/40 text-xs">
-                        <FaGift size={12} />
-                        <span>Parrainez vos amis et gagnez 500 FCFA par inscription</span>
-                    </div>
-                </div>
-
-                <div className="text-center text-white/30 text-xs mt-6">
-                    AlkherPay v1.0.0 - © 2026 GOUROUSDJA
-                </div>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+            <div className="text-center">
+                <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-white text-lg font-medium">Chargement...</p>
             </div>
-
-            {/* Modal Mot de passe oublié */}
-            {showForgotModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-fade-in">
-                    <div className="relative max-w-md w-full bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl shadow-2xl">
-                        <div className="p-4 border-b border-white/10 flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                <FaKey className="text-blue-400" /> Mot de passe oublié
-                            </h3>
-                            <button
-                                onClick={() => setShowForgotModal(false)}
-                                className="text-white/60 hover:text-white text-2xl leading-none"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <div className="p-6">
-                            {forgotSuccess ? (
-                                <div className="text-center">
-                                    <div className="inline-flex p-3 bg-green-500/20 rounded-full mb-4">
-                                        <FaCheckCircle className="text-green-400 text-4xl" />
-                                    </div>
-                                    <h4 className="text-white text-xl font-bold mb-2">Demande envoyée !</h4>
-                                    <p className="text-white/70 text-sm">
-                                        Votre demande a été transmise à l'administrateur.
-                                        Vous serez contacté sous 24h pour réinitialiser votre accès.
-                                    </p>
-                                </div>
-                            ) : (
-                                <>
-                                    <p className="text-white/70 text-sm mb-4">
-                                        Entrez votre numéro de téléphone. L'administrateur recevra votre demande
-                                        et vous contactera pour réinitialiser votre accès.
-                                    </p>
-                                    <div>
-                                        <label className="block text-white/80 text-sm font-medium mb-2">
-                                            <FaPhone className="inline mr-2" /> Numéro de téléphone
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            value={forgotPhone}
-                                            onChange={(e) => setForgotPhone(e.target.value.replace(/\D/g, '').slice(0, 8))}
-                                            className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                            placeholder="Ex: 62787307"
-                                            maxLength="8"
-                                        />
-                                    </div>
-                                    <div className="flex gap-3 mt-6">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowForgotModal(false)}
-                                            className="flex-1 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 transition"
-                                        >
-                                            Annuler
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={handleForgotPassword}
-                                            disabled={sendingRequest}
-                                            className="flex-1 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
-                                        >
-                                            {sendingRequest ? (
-                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                            ) : (
-                                                'Envoyer la demande'
-                                            )}
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
-    );
+    )
 }
 
-export default Login;
+// ============================================
+// APP
+// ============================================
+function App() {
+    const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        checkAuth()
+    }, [])
+
+    const checkAuth = async () => {
+        setLoading(true)
+
+        try {
+            const token = localStorage.getItem('accessToken')
+            const savedUser = localStorage.getItem('user')
+
+            if (token && savedUser) {
+                const userData = JSON.parse(savedUser)
+
+                try {
+                     const response = await axios.get(`${API_URL}/api/auth/verify`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+
+                    if (response.data.valid) {
+                        setUser(userData)
+                        initSocket(token)
+                    } else {
+                        handleLogout()
+                    }
+                } catch (error) {
+                    console.error('Erreur vérification token:', error)
+                    setUser(userData)
+                    initSocket(token)
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors de la vérification:', error)
+            handleLogout()
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const initSocket = (token) => {
+        if (socket && socket.connected) {
+            socket.disconnect()
+        }
+
+        socket = io(SOCKET_URL, {
+            transports: ['websocket', 'polling'],
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 10000,
+            auth: { token }
+        })
+
+        socket.on('connect', () => {
+            console.log('✅ Socket connecté')
+            socket.emit('authenticate', token)
+        })
+
+        socket.on('connect_error', (error) => {
+            console.error('❌ Socket error:', error.message)
+        })
+
+        socket.on('disconnect', (reason) => {
+            console.log('🔌 Socket déconnecté:', reason)
+        })
+
+        socket.on('reconnect', (attemptNumber) => {
+            console.log(`🔄 Socket reconnecté après ${attemptNumber} tentatives`)
+            socket.emit('authenticate', token)
+        })
+
+        socket.on('notification', (notification) => {
+            console.log('📢 Notification reçue:', notification)
+
+            if (notification.type === 'security') {
+                toast.security(notification.message || notification.title, {
+                    icon: '🔑',
+                    duration: 10000
+                })
+            } else if (notification.type === 'success') {
+                toast.success(notification.message || notification.title)
+            } else if (notification.type === 'error') {
+                toast.error(notification.message || notification.title)
+            } else {
+                toast.info(notification.message || notification.title)
+            }
+        })
+    }
+
+    const handleLogout = () => {
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('user')
+        setUser(null)
+        if (socket && socket.connected) {
+            socket.disconnect()
+        }
+        toast.success('Déconnecté avec succès')
+    }
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                    <p className="text-white">Chargement...</p>
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <div className="min-h-screen">
+            <Toaster position="top-right" />
+            <ErrorBoundary>
+                <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                        {/* ============================================ */}
+                        {/* ROUTES PUBLIQUES */}
+                        {/* ============================================ */}
+                        <Route path="/" element={<Home />} />
+                        <Route path="/home" element={<Home />} />
+                        <Route path="/login" element={<Login setUser={setUser} />} />
+                        <Route path="/register" element={<Register />} />
+
+                        <Route path="/features" element={<Features user={user} />} />
+                        <Route path="/fees" element={<Fees user={user} />} />
+                        <Route path="/become-agent" element={<BecomeAgent user={user} />} />
+                        <Route path="/faq" element={<FAQ user={user} />} />
+                        <Route path="/blog" element={<Blog user={user} />} />
+                        <Route path="/blog/:slug" element={<BlogPost user={user} />} />
+                        <Route path="/agents" element={<Agents user={user} />} />
+                        <Route path="/licenses" element={<Licenses user={user} />} />
+                        <Route path="/terms" element={<Terms user={user} />} />
+                        <Route path="/privacy" element={<Privacy user={user} />} />
+                        <Route path="/contact" element={<Contact user={user} />} />
+
+                        {/* ============================================ */}
+                        {/* ROUTES PROTÉGÉES */}
+                        {/* ============================================ */}
+                        <Route element={<PrivateRoute user={user} />}>
+                            <Route path="/dashboard" element={<Dashboard user={user} socket={socket} />} />
+                            <Route path="/transfer" element={<Transfer user={user} socket={socket} />} />
+                            <Route path="/history" element={<History user={user} />} />
+                            <Route path="/profile" element={<Profile user={user} />} />
+                            <Route path="/settings" element={<Settings user={user} />} />
+                            <Route path="/settings/2fa" element={<TwoFactorAuth user={user} />} />
+                            <Route path="/chat" element={<Chat user={user} socket={socket} />} />
+                            <Route path="/chat/:conversationId" element={<Chat user={user} socket={socket} />} />
+                            <Route path="/notifications/:id" element={<NotificationDetail user={user} />} />
+
+                            <Route path="/token-market" element={user ? <TokenMarket user={user} /> : <Navigate to="/login" />} />
+                            <Route path="/token/:id" element={user ? <TokenDetail user={user} /> : <Navigate to="/login" />} />
+                            <Route path="/my-tokens" element={user ? <MyTokens user={user} /> : <Navigate to="/login" />} />
+
+                            {/* Services financiers */}
+                            <Route path="/deposit" element={<Deposit user={user} socket={socket} />} />
+                            <Route path="/withdraw" element={<Withdraw user={user} socket={socket} />} />
+                            <Route path="/savings" element={<Savings user={user} socket={socket} />} />
+                            <Route path="/loans" element={<LoanRequest user={user} socket={socket} />} />
+                            <Route path="/investments" element={<Investments user={user} socket={socket} />} />
+                            <Route path="/investment/:id" element={<InvestmentDetail user={user} socket={socket} />} />
+
+                            {/* Cartes virtuelles */}
+                            <Route path="/virtual-card" element={<VirtualCard user={user} />} />
+                            <Route path="/card-payment" element={<CardPayment user={user} />} />
+
+                            {/* Taxes & Impôts */}
+                            <Route path="/tax-payment" element={<TaxPayment user={user} />} />
+                            <Route path="/tax-management" element={<TaxManagement user={user} />} />
+
+                            {/* Entreprises */}
+                            <Route path="/my-company" element={<MyCompany user={user} socket={socket} />} />
+                            <Route path="/company/dashboard" element={<CompanyDashboard user={user} />} />
+
+                            {/* Services divers */}
+                            <Route path="/bill-payment" element={<BillPayment user={user} />} />
+                            <Route path="/bus-booking" element={<BusBooking user={user} socket={socket} />} />
+                            <Route path="/agency-management" element={<AgencyManagement user={user} socket={socket} />} />
+                            <Route path="/announcements" element={<Announcements />} />
+
+                            {/* KYC */}
+                            <Route path="/kyc-level-2" element={<KYCLevel2 user={user} socket={socket} />} />
+
+                            {/* Admin */}
+                            <Route path="/admin" element={<AdminPanel user={user} socket={socket} />} />
+                            <Route path="/admin/taxes" element={<AdminTaxes user={user} />} />
+                            <Route path="/admin/loans" element={<AdminLoans user={user} socket={socket} />} />
+                            <Route path="/admin/savings" element={<AdminSavings user={user} socket={socket} />} />
+                            <Route path="/admin/cards" element={<AdminCards user={user} />} />
+                            <Route path="/admin/bill-companies" element={<AdminBillCompanies user={user} />} />
+                            <Route path="/admin/create-agent" element={<CreateAgent user={user} />} />
+                            <Route path="/admin/agent-applications/:id" element={<AgentApplicationDetail user={user} />} />
+                            <Route path="/admin/kyc/:id" element={<KYCDetail user={user} />} />
+                        </Route>
+
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                </Suspense>
+            </ErrorBoundary>
+        </div>
+    )
+}
+
+export default App
