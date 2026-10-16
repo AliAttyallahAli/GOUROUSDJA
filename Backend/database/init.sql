@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS users (
     transaction_pin TEXT,
     is_pin_set INTEGER DEFAULT 0,
     pin_attempts INTEGER DEFAULT 0,
+    pin_hash TEXT,
     pin_blocked_until DATETIME,    
     two_factor_enabled INTEGER DEFAULT 0,
     two_factor_secret TEXT,

@@ -4,6 +4,8 @@ import { FaDownload, FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
 function TransactionCard({ transaction, currentUserPhone }) {
   const [expanded, setExpanded] = useState(false)
   const [downloading, setDownloading] = useState(false)

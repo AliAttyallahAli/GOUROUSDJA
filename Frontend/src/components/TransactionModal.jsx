@@ -8,6 +8,8 @@ import {
 } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
 function TransactionModal({ isOpen, onClose, transaction, type }) {
   const [countdown, setCountdown] = useState(5)
   const [copied, setCopied] = useState(false)

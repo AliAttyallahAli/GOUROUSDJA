@@ -25,12 +25,12 @@ export default defineConfig({
         host: true,
         proxy: {
             '/api': {
-                target: 'https://mymemorie.onrender.com',
+                target: 'https://localhost:9000',
                 changeOrigin: true,
                 secure: false,
             },
             '/socket.io': {
-                target: 'https://mymemorie.onrender.com',
+                target: 'https://localhost:9000',
                 changeOrigin: true,
                 ws: true,
             },

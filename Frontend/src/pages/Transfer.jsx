@@ -282,10 +282,8 @@ function Transfer({ user, socket }) {
         setLoading(true);
 
         try {
-            console.log('📤 Envoi transfert avec PIN');
-
-            const response = await axios.post(
-                `${API_URL}/api/transfer`,
+            console.log('📤 Envoi transfert avec PIN')
+            const response = await axios.post(`${API_URL}/api/transfer`,
                 {
                     receiver_phone: pendingTransaction.receiver_phone,
                     amount: pendingTransaction.amount,

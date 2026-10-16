@@ -136,7 +136,176 @@ function generateTokens(userId, phone, role) {
   return { accessToken, refreshToken };
 }
 
-// ============================================
+
+// ============================================================
+// ROUTE DE TRANSFERT AVEC VÉRIFICATION PIN
+// ============================================================
+app.post('/api/transfer', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+    const { receiver_phone, amount, description, pin } = req.body;
+
+    console.log('\n========== TRANSFERT ==========');
+    console.log('👤 User:', userId);
+    console.log('📱 Destinataire:', receiver_phone);
+    console.log('💰 Montant:', amount);
+    console.log('🔐 PIN fourni:', pin ? 'oui' : 'non');
+
+    try {
+        // ============================================
+        // 1. VALIDATION
+        // ============================================
+        if (!receiver_phone || !amount) {
+            return res.status(400).json({ error: 'Numéro et montant requis' });
+        }
+
+        const amountNum = parseInt(amount);
+        if (isNaN(amountNum) || amountNum < 25) {
+            return res.status(400).json({ error: 'Montant minimum: 25 FCFA' });
+        }
+
+        if (!/^\d{8}$/.test(receiver_phone)) {
+            return res.status(400).json({ error: 'Numéro invalide (8 chiffres)' });
+        }
+
+        if (receiver_phone === req.user.phone) {
+            return res.status(400).json({ error: 'Impossible de s\'envoyer à soi-même' });
+        }
+
+        if (!pin || !/^\d{4}$/.test(pin)) {
+            return res.status(400).json({ error: 'PIN requis (4 chiffres)' });
+        }
+
+        // ============================================
+        // 2. VÉRIFIER/CREER LE PIN
+        // ============================================
+        const user = await get('SELECT id, phone, fullname, pin_hash FROM users WHERE id = ?', [userId]);
+
+        if (!user) {
+            return res.status(404).json({ error: 'Utilisateur non trouvé' });
+        }
+
+        const bcrypt = require('bcrypt');
+
+        if (!user.pin_hash) {
+            // ✅ PREMIER TRANSFERT : enregistrer le PIN
+            console.log('📝 Premier transfert - Enregistrement du PIN');
+            const pinHash = await bcrypt.hash(pin, 10);
+            await run('UPDATE users SET pin_hash = ? WHERE id = ?', [pinHash, userId]);
+            console.log('✅ PIN enregistré');
+        } else {
+            // ✅ PIN EXISTANT : vérifier
+            console.log('🔍 Vérification du PIN');
+            const isValid = await bcrypt.compare(pin, user.pin_hash);
+            if (!isValid) {
+                console.log('❌ PIN incorrect');
+                return res.status(401).json({ error: 'Code PIN incorrect' });
+            }
+            console.log('✅ PIN valide');
+        }
+
+        // ============================================
+        // 3. VÉRIFIER DESTINATAIRE
+        // ============================================
+        const receiver = await get(
+            'SELECT id, fullname, phone, is_active FROM users WHERE phone = ?',
+            [receiver_phone]
+        );
+
+        if (!receiver) {
+            return res.status(404).json({ error: 'Destinataire non trouvé' });
+        }
+
+        // ============================================
+        // 4. VÉRIFIER SOLDE
+        // ============================================
+        const senderWallet = await get(
+            'SELECT * FROM wallets WHERE user_id = ?',
+            [userId]
+        );
+
+        if (!senderWallet) {
+            return res.status(404).json({ error: 'Wallet non trouvé' });
+        }
+
+        const fee = Math.floor(amountNum * 0.02);
+        const totalToDebit = amountNum + fee;
+
+        if (senderWallet.balance < totalToDebit) {
+            return res.status(400).json({
+                error: `Solde insuffisant. Requis: ${totalToDebit.toLocaleString()} FCFA, Disponible: ${senderWallet.balance.toLocaleString()} FCFA`
+            });
+        }
+
+        // ============================================
+        // 5. TRANSACTION
+        // ============================================
+        const reference = `TXN-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
+        await run('BEGIN TRANSACTION');
+
+        try {
+            // Débiter
+            await run(`
+                UPDATE wallets 
+                SET balance = balance - ?, updated_at = CURRENT_TIMESTAMP 
+                WHERE user_id = ?
+            `, [totalToDebit, userId]);
+
+            // Créditer
+            let receiverWallet = await get('SELECT * FROM wallets WHERE user_id = ?', [receiver.id]);
+            if (!receiverWallet) {
+                await run('INSERT INTO wallets (user_id, balance) VALUES (?, 0)', [receiver.id]);
+            }
+
+            await run(`
+                UPDATE wallets 
+                SET balance = balance + ?, updated_at = CURRENT_TIMESTAMP 
+                WHERE user_id = ?
+            `, [amountNum, receiver.id]);
+
+            // Enregistrer transaction
+            await run(`
+                INSERT INTO transactions (
+                    user_id, type, amount, fee, net_amount,
+                    status, reference, description,
+                    sender_phone, receiver_phone,
+                    sender_name, receiver_name
+                ) VALUES (?, 'transfer', ?, ?, ?, 'completed', ?, ?, ?, ?, ?, ?)
+            `, [
+                userId, amountNum, fee, amountNum, reference,
+                description || '', user.phone, receiver.phone,
+                user.fullname, receiver.fullname
+            ]).catch(err => console.log('⚠️ Transaction non enregistrée:', err.message));
+
+            const newWallet = await get('SELECT balance FROM wallets WHERE user_id = ?', [userId]);
+
+            await run('COMMIT');
+
+            console.log('✅ Transfert réussi:', reference);
+
+            res.json({
+                success: true,
+                transaction: {
+                    reference,
+                    amount: amountNum,
+                    fee,
+                    total_debited: totalToDebit,
+                    receiver: receiver.fullname,
+                    receiver_phone: receiver.phone,
+                    new_balance: newWallet?.balance || 0
+                }
+            });
+
+        } catch (dbError) {
+            await run('ROLLBACK');
+            throw dbError;
+        }
+
+    } catch (error) {
+        console.error('❌ Erreur transfert:', error);
+        res.status(500).json({ error: error.message });
+    }
+});// ============================================
 // ENDPOINTS POUR LE PIN DE TRANSACTION
 // ============================================
 
@@ -868,48 +1037,127 @@ app.post('/api/user/change-transaction-pin', authenticateToken, async (req, res)
 // GESTION DU PIN UTILISATEUR
 // ============================================
 
-// Vérifier si l'utilisateur a un PIN
+//// ============================================================
+// ROUTES PIN DE TRANSACTION
+// ============================================================
+
+/**
+ * GET /api/user/pin-status
+ */
 app.get('/api/user/pin-status', authenticateToken, async (req, res) => {
-  try {
-    const user = await get('SELECT is_pin_set FROM users WHERE id = ?', [req.user.userId]);
-    res.json({ hasPin: user?.is_pin_set === 1 });
-  } catch (error) {
-    console.error('Erreur vérification PIN:', error);
-    res.status(500).json({ error: 'Erreur lors de la vérification' });
-  }
+    const userId = req.user.userId;
+
+    try {
+        const user = await get('SELECT pin_hash FROM users WHERE id = ?', [userId]);
+        res.json({
+            success: true,
+            hasPin: !!(user && user.pin_hash)
+        });
+    } catch (error) {
+        console.error('❌ Erreur pin-status:', error);
+        res.json({ success: false, hasPin: false });
+    }
 });
 
-// Définir le PIN (première fois ou réinitialisation par admin)
+/**
+ * POST /api/user/set-transaction-pin
+ */
 app.post('/api/user/set-transaction-pin', authenticateToken, async (req, res) => {
-  const { pin } = req.body;
+    const userId = req.user.userId;
+    const { pin } = req.body;
 
-  if (!pin || !/^\d{4}$/.test(pin)) {
-    return res.status(400).json({ error: 'Le PIN doit contenir 4 chiffres' });
-  }
+    console.log('🔐 Set PIN pour user:', userId);
 
-  try {
-    const hashedPin = await bcrypt.hash(pin, 10);
+    if (!pin || !/^\d{4}$/.test(pin)) {
+        return res.status(400).json({
+            success: false,
+            error: 'PIN invalide (4 chiffres requis)'
+        });
+    }
 
-    await run(`
-      UPDATE users 
-      SET transaction_pin = ?, is_pin_set = 1, pin_attempts = 0, pin_blocked_until = NULL
-      WHERE id = ?
-    `, [hashedPin, req.user.userId]);
+    try {
+        // Vérifier que la colonne existe
+        const columns = await query("PRAGMA table_info(users)").catch(() => []);
+        const hasPinColumn = columns.some(c => c.name === 'pin_hash');
 
-    // Créer une notification de confirmation
-    await run(`
-      INSERT INTO notifications (user_id, title, message, type, category, created_at)
-      VALUES (?, '🔐 PIN sécurisé', 'Votre code PIN a été défini avec succès', 'success', 'security', CURRENT_TIMESTAMP)
-    `, [req.user.userId]);
+        if (!hasPinColumn) {
+            await run('ALTER TABLE users ADD COLUMN pin_hash TEXT');
+            console.log('✅ Colonne pin_hash ajoutée');
+        }
 
-    res.json({ success: true, message: 'PIN défini avec succès' });
+        const bcrypt = require('bcrypt');
+        const pinHash = await bcrypt.hash(pin, 10);
 
-  } catch (error) {
-    console.error('Erreur définition PIN:', error);
-    res.status(500).json({ error: 'Erreur lors de la définition du PIN' });
-  }
+        await run(
+            'UPDATE users SET pin_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            [pinHash, userId]
+        );
+
+        console.log('✅ PIN enregistré pour user:', userId);
+
+        res.json({
+            success: true,
+            message: 'PIN défini avec succès'
+        });
+    } catch (error) {
+        console.error('❌ Erreur set-pin:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
 });
 
+/**
+ * POST /api/user/verify-transaction-pin
+ */
+app.post('/api/user/verify-transaction-pin', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+    const { pin } = req.body;
+
+    console.log('🔍 Verify PIN pour user:', userId);
+
+    if (!pin || !/^\d{4}$/.test(pin)) {
+        return res.status(400).json({
+            success: false,
+            error: 'PIN invalide (4 chiffres requis)'
+        });
+    }
+
+    try {
+        const user = await get('SELECT pin_hash FROM users WHERE id = ?', [userId]);
+
+        if (!user || !user.pin_hash) {
+            return res.status(400).json({
+                success: false,
+                error: 'Aucun PIN défini'
+            });
+        }
+
+        const bcrypt = require('bcrypt');
+        const isValid = await bcrypt.compare(pin, user.pin_hash);
+
+        if (!isValid) {
+            return res.status(401).json({
+                success: false,
+                error: 'Code PIN incorrect'
+            });
+        }
+
+        console.log('✅ PIN valide');
+
+        res.json({
+            success: true,
+            message: 'PIN vérifié'
+        });
+    } catch (error) {
+        console.error('❌ Erreur verify-pin:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
 // Vérifier le PIN avant transaction
 app.post('/api/user/verify-transaction-pin', authenticateToken, async (req, res) => {
   const { pin } = req.body;
