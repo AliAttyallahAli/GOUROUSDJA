@@ -9942,7 +9942,214 @@ app.delete('/api/admin/service-companies/:id', authenticateToken, requireAdmin, 
     res.status(500).json({ error: 'Erreur lors de la suppression' });
   }
 });
+// ============================================================
+// ROUTES ADMIN - GESTION DES UTILISATEURS
+// ============================================================
+// ============================================================
+// SUPPRESSION D'UTILISATEUR (ADMIN)
+// ============================================================
+app.delete('/api/admin/users/:id', authenticateToken, requireAdmin, async (req, res) => {
+    const { id } = req.params;
 
+    console.log('🗑️ DELETE /api/admin/users/' + id);
+
+    // Empêcher l'auto-suppression
+    if (parseInt(id) === req.user.userId) {
+        return res.status(400).json({
+            success: false,
+            error: 'Vous ne pouvez pas supprimer votre propre compte'
+        });
+    }
+
+    try {
+        // Vérifier que l'utilisateur existe
+        const user = await get('SELECT * FROM users WHERE id = ?', [id]);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'Utilisateur non trouvé'
+            });
+        }
+
+        // Transaction atomique
+        await run('BEGIN TRANSACTION');
+
+        try {
+            // Supprimer les données liées (best-effort)
+            await run('DELETE FROM wallets WHERE user_id = ?', [id]).catch(() => {});
+            await run('DELETE FROM notifications WHERE user_id = ?', [id]).catch(() => {});
+            await run('DELETE FROM transactions WHERE user_id = ?', [id]).catch(() => {});
+            await run('DELETE FROM virtual_cards WHERE user_id = ?', [id]).catch(() => {});
+            await run('DELETE FROM kyc_requests WHERE user_id = ?', [id]).catch(() => {});
+            await run('DELETE FROM user_tokens WHERE user_id = ?', [id]).catch(() => {});
+            
+            // Supprimer l'utilisateur
+            await run('DELETE FROM users WHERE id = ?', [id]);
+
+            await run('COMMIT');
+
+            console.log('✅ Utilisateur supprimé:', id);
+
+            res.json({
+                success: true,
+                message: 'Utilisateur supprimé avec succès'
+            });
+
+        } catch (dbError) {
+            await run('ROLLBACK');
+            throw dbError;
+        }
+
+    } catch (error) {
+        console.error('❌ Erreur suppression user:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+/**
+ * POST /api/admin/users/:id/reset-password
+ * Réinitialiser le mot de passe d'un utilisateur
+ */
+app.post('/api/admin/users/:id/reset-password', authenticateToken, requireAdmin, async (req, res) => {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    console.log('🔐 Reset password pour user:', id);
+
+    if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({
+            success: false,
+            error: 'Mot de passe requis (min 6 caractères)'
+        });
+    }
+
+    try {
+        const user = await get('SELECT * FROM users WHERE id = ?', [id]);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'Utilisateur non trouvé'
+            });
+        }
+
+        const bcrypt = require('bcryptjs');
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await run(
+            'UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            [hashedPassword, id]
+        );
+
+        console.log('✅ Password réinitialisé pour user:', id);
+
+        res.json({
+            success: true,
+            message: 'Mot de passe réinitialisé avec succès'
+        });
+
+    } catch (error) {
+        console.error('❌ Erreur reset password:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * POST /api/admin/users/:id/toggle-active
+ * Activer/désactiver un utilisateur
+ */
+app.post('/api/admin/users/:id/toggle-active', authenticateToken, requireAdmin, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await get('SELECT * FROM users WHERE id = ?', [id]);
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'Utilisateur non trouvé' });
+        }
+
+        const newStatus = user.is_active ? 0 : 1;
+        await run('UPDATE users SET is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [newStatus, id]);
+
+        res.json({
+            success: true,
+            is_active: newStatus,
+            message: `Utilisateur ${newStatus ? 'activé' : 'désactivé'}`
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * POST /api/admin/users/:id/reset-pin
+ * Réinitialiser le PIN d'un utilisateur
+ */
+app.post('/api/admin/users/:id/reset-pin', authenticateToken, requireAdmin, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        await run('UPDATE users SET pin_hash = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+
+        res.json({
+            success: true,
+            message: 'PIN réinitialisé. L\'utilisateur devra en définir un nouveau.'
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * GET /api/admin/users
+ * Liste des utilisateurs (avec filtres)
+ */
+app.get('/api/admin/users', authenticateToken, requireAdmin, async (req, res) => {
+    const { role, search, limit = 100, offset = 0 } = req.query;
+
+    try {
+        let sql = `
+            SELECT 
+                u.id, u.phone, u.fullname, u.email,
+                u.role, u.is_active, u.is_verified, u.kyc_level,
+                u.province, u.city, u.created_at,
+                w.balance,
+                CASE WHEN u.pin_hash IS NOT NULL THEN 1 ELSE 0 END as has_pin
+            FROM users u
+            LEFT JOIN wallets w ON u.id = w.user_id
+            WHERE 1=1
+        `;
+        const params = [];
+
+        if (role) {
+            sql += ' AND u.role = ?';
+            params.push(role);
+        }
+
+        if (search) {
+            sql += ' AND (u.fullname LIKE ? OR u.phone LIKE ? OR u.email LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        }
+
+        sql += ' ORDER BY u.created_at DESC LIMIT ? OFFSET ?';
+        params.push(parseInt(limit), parseInt(offset));
+
+        const users = await query(sql, params).catch(() => []);
+
+        res.json({
+            success: true,
+            users: users || [],
+            count: users?.length || 0
+        });
+
+    } catch (error) {
+        console.error('❌ Erreur admin users:', error);
+        res.status(500).json({ success: false, error: error.message, users: [] });
+    }
+});
 // ============================================
 // 6. GET - Statistiques des entreprises
 // ============================================
